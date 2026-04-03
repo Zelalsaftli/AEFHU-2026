@@ -2,8 +2,8 @@ export interface CowParameters {
   weight: number; // kg
   milkProduction: number; // kg/day
   fatPercentage: number; // %
-  proteinPercentage: number; // % (New: Required for AEFHU 2026 ECM)
-  daysInMilk: number; // DIM (New: Required for AEFHU 2026 DMI)
+  proteinPercentage: number; // % (New: Required for Feed 2026 ECM)
+  daysInMilk: number; // DIM (New: Required for Feed 2026 DMI)
   pregnancyMonth: number; // 0-9
   growthRate: number; // kg/day (heifers)
   bcsChange: number; // -1 to +1 (loss/gain)
@@ -26,7 +26,7 @@ export interface Nutrients {
   sugar: number; // % DM or g
   ndf: number; // Neutral Detergent Fiber (g)
   adf: number; // Acid Detergent Fiber (g)
-  predictedDmi?: number; // AEFHU 2026 Predicted Dry Matter Intake (kg)
+  predictedDmi?: number; // Feed 2026 Predicted Dry Matter Intake (kg)
 }
 
 export interface FeedIngredient {

@@ -1,21 +1,27 @@
 import { GoogleGenAI } from "@google/genai";
 import { Nutrients, CowParameters } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export const predictMetabolicHealth = async (
   cowParams: CowParameters,
   needs: Nutrients,
   supplied: Nutrients,
   forageToConcRatio: number
 ): Promise<string> => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  
+  if (!apiKey || apiKey === "undefined") {
+    console.error("خطأ: مفتاح API غير موجود. يرجى إضافته في إعدادات البيئة (Environment Variables).");
+    return "عذراً، مفتاح الـ API الخاص بالذكاء الاصطناعي غير مهيأ. يرجى التأكد من إضافته في إعدادات Vercel.";
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3-flash-preview";
 
   const energyBalance = supplied.me - needs.me;
   const cpBalance = supplied.cp - needs.cp;
 
   const prompt = `
-    أنت طبيب بيطري وخبير في صياغة علائق الأبقار الحلوب متخصص في معايير AEFHU 2026. قم بتحليل هذه العليقة وتوقع الأمراض الاستقلابية المحتملة.
+    أنت طبيب بيطري أو مهندس زراعي مختص في تغذية الحيوان، وخبير في صياغة علائق الأبقار الحلوب وفق معايير NRC 2021 و NASEM 2021 و Feed 2026. قم بتحليل هذه العليقة وتوقع الأمراض الاستقلابية المحتملة وقدم نصائح فنية دقيقة بناءً على هذه المراجع العلمية الموثوقة.
     
     بيانات البقرة التفصيلية:
     - الوزن: ${cowParams.weight} كغ، السلالة: ${cowParams.breed}
@@ -25,7 +31,7 @@ export const predictMetabolicHealth = async (
     - رقم الموسم: ${cowParams.lactationNumber}
     - البيئة: ${cowParams.environment}، الرعي: ${cowParams.grazing}
     
-    التحليل الغذائي (AEFHU 2026):
+    التحليل الغذائي (Feed 2026):
     - الطاقة الاستقلابية (ME): المقدم ${supplied.me} / المطلوب ${needs.me} Mcal (التوازن: ${energyBalance.toFixed(2)} Mcal)
     - البروتين الخام (CP): المقدم ${supplied.cp} / المطلوب ${needs.cp} g (التوازن: ${cpBalance.toFixed(0)} g)
     - الألياف (NDF): المقدم ${supplied.ndf} / الحد الأدنى ${needs.ndf} g

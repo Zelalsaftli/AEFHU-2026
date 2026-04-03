@@ -33,9 +33,9 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
     <div className="max-w-3xl mx-auto">
       <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-2xl border border-indigo-100 shadow-sm text-center mb-8">
         <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-indigo-900 mb-2">المستشار البيطري الذكي</h2>
+        <h2 className="text-2xl font-bold text-indigo-900 mb-2">المستشار الفني الذكي (بيطري/زراعي)</h2>
         <p className="text-indigo-700 mb-6">
-          باستخدام الذكاء الاصطناعي (Gemini)، نقوم بتحليل التوازن الغذائي للتنبؤ بمخاطر الأمراض الاستقلابية مثل حمى الحليب، الكيتوزيس، والحماض الكرشي.
+          باستخدام الذكاء الاصطناعي (Gemini)، نقوم بتحليل التوازن الغذائي من وجهة نظر طبية وفنية (تغذية حيوان) للتنبؤ بمخاطر الأمراض الاستقلابية مثل حمى الحليب، الكيتوزيس، والحماض الكرشي.
         </p>
         
         <button
@@ -67,7 +67,7 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
                  </div>
             </div>
             <div className="bg-yellow-50 p-4 text-xs text-yellow-800 border-t border-yellow-100 text-center">
-                تنويه: هذه النتائج استرشادية وتعتمد على دقة المدخلات. يرجى استشارة الطبيب البيطري دائماً.
+                تنويه: هذه النتائج استرشادية وتعتمد على دقة المدخلات. يرجى استشارة الطبيب البيطري أو المهندس الزراعي المختص دائماً.
             </div>
         </div>
       )}

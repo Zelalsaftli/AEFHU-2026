@@ -1,6 +1,7 @@
 import React from 'react';
 import { CowParameters, Nutrients } from '../types';
 import { Info, AlertCircle, Leaf } from 'lucide-react';
+import DecimalInput from './DecimalInput';
 
 interface NeedsFormProps {
   params: CowParameters;
@@ -19,10 +20,17 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
     });
   };
 
+  const handleDecimalChange = (name: keyof CowParameters, val: number) => {
+    setParams({
+      ...params,
+      [name]: val
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-        <h2 className="text-2xl font-bold text-slate-800 mb-6 border-b pb-2">بيانات البقرة والعوامل البيئية (AEFHU 2026)</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-6 border-b pb-2">بيانات البقرة والعوامل البيئية (Feed 2026)</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
@@ -59,46 +67,36 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
 
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">الوزن الحي (كغ)</label>
-            <input
-              type="number"
-              name="weight"
+            <DecimalInput
               value={params.weight}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('weight', val)}
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
 
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">إنتاج الحليب اليومي (كغ)</label>
-            <input
-              type="number"
-              name="milkProduction"
+            <DecimalInput
               value={params.milkProduction}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('milkProduction', val)}
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
 
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">نسبة الدهن (%)</label>
-            <input
-              type="number"
-              step="0.1"
-              name="fatPercentage"
+            <DecimalInput
               value={params.fatPercentage}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('fatPercentage', val)}
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
 
            <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">نسبة البروتين (%)</label>
-            <input
-              type="number"
-              step="0.1"
-              name="proteinPercentage"
+            <DecimalInput
               value={params.proteinPercentage}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('proteinPercentage', val)}
               placeholder="مثال: 3.2"
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
@@ -106,11 +104,9 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
 
            <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">أيام الحليب (DIM)</label>
-            <input
-              type="number"
-              name="daysInMilk"
+            <DecimalInput
               value={params.daysInMilk}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('daysInMilk', val)}
               placeholder="عدد الأيام بعد الولادة"
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
@@ -118,25 +114,18 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
 
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">شهر الحمل (0-9)</label>
-            <input
-              type="number"
-              min="0"
-              max="9"
-              name="pregnancyMonth"
+            <DecimalInput
               value={params.pregnancyMonth}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('pregnancyMonth', val)}
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
 
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">معدل النمو (كغ/يوم)</label>
-            <input
-              type="number"
-              step="0.1"
-              name="growthRate"
+            <DecimalInput
               value={params.growthRate}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('growthRate', val)}
               placeholder={params.lactationNumber < 3 ? "يتم حسابه تلقائياً إذا كان 0" : "0"}
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
@@ -150,14 +139,9 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
 
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">حالة الجسم الحالية (BCS 1-5)</label>
-            <input
-              type="number"
-              step="0.1"
-              min="1"
-              max="5"
-              name="currentBcs"
+            <DecimalInput
               value={params.currentBcs}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('currentBcs', val)}
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
              <p className="text-[10px] text-slate-400 mt-1">
@@ -167,12 +151,9 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
 
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">تغير الوزن اليومي (كغ/يوم)</label>
-            <input
-              type="number"
-              step="0.1"
-              name="bcsChange"
+            <DecimalInput
               value={params.bcsChange}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('bcsChange', val)}
               placeholder="مثال: 0.5 زيادة أو -0.2 نقصان"
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
@@ -184,12 +165,9 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
           {/* New Environment Inputs */}
           <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">عدد الأبقار في المجموعة</label>
-            <input
-              type="number"
-              min="1"
-              name="groupSize"
+            <DecimalInput
               value={params.groupSize}
-              onChange={handleChange}
+              onChange={(val) => handleDecimalChange('groupSize', val)}
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
              <p className="text-[10px] text-slate-400 mt-1">
@@ -231,7 +209,7 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
       {/* Calculated Requirements Display */}
       <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm">
         <h3 className="text-xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
-            <span>الاحتياجات الغذائية اليومية المقدرة (AEFHU 2026)</span>
+            <span>الاحتياجات الغذائية اليومية المقدرة (Feed 2026)</span>
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="bg-white p-4 rounded-lg shadow-sm text-center flex flex-col justify-center relative overflow-hidden group">

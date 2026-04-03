@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { RationItem, Nutrients, FeedIngredient } from '../types';
 import { Calculator, Settings, Plus, X, Save, RefreshCw } from 'lucide-react';
+import DecimalInput from './DecimalInput';
 
 interface FeedFormProps {
   concentrateMix: RationItem[];
@@ -164,14 +165,12 @@ const FeedForm: React.FC<FeedFormProps> = ({
                  
                  <div className="col-span-5 md:col-span-4 relative">
                     {/* RTL Input: Text Right, Icon Left */}
-                    <input 
-                      type="number"
-                      min="0"
-                      dir="ltr" 
-                      value={currentVal}
-                      onChange={(e) => updateMixItem(feed.id, parseFloat(e.target.value) || 0)}
+                    <DecimalInput 
+                      value={typeof currentVal === 'number' ? currentVal : 0}
+                      onChange={(val) => updateMixItem(feed.id, val)}
                       className="w-full p-2 pl-8 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-right bg-slate-50"
                       placeholder="0"
+                      dir="ltr"
                     />
                     <span className="absolute left-3 top-2 text-slate-400 text-xs font-bold">%</span>
                  </div>
@@ -266,12 +265,11 @@ const FeedForm: React.FC<FeedFormProps> = ({
             <label className="block text-lg font-medium text-blue-900 mb-2">كمية العلف المركز (من الخلطة السابقة)</label>
             <div className="flex items-center gap-4">
                 <div className="relative max-w-xs flex-1">
-                    <input 
-                        type="number" 
-                        dir="ltr"
+                    <DecimalInput 
                         value={concentrateFedAmount}
-                        onChange={(e) => setConcentrateFedAmount(parseFloat(e.target.value) || 0)}
+                        onChange={(val) => setConcentrateFedAmount(val)}
                         className="w-full p-3 pl-12 border-2 border-blue-200 rounded-lg text-lg focus:border-blue-500 focus:outline-none text-right"
+                        dir="ltr"
                     />
                     <span className="absolute left-4 top-4 font-bold text-slate-400">كغ</span>
                 </div>
@@ -298,14 +296,12 @@ const FeedForm: React.FC<FeedFormProps> = ({
                         </label>
                         
                         <div className="col-span-5 md:col-span-4 relative">
-                            <input 
-                            type="number"
-                            min="0"
-                            dir="ltr"
-                            value={currentVal}
-                            onChange={(e) => updateForageItem(feed.id, parseFloat(e.target.value) || 0)}
+                            <DecimalInput 
+                            value={typeof currentVal === 'number' ? currentVal : 0}
+                            onChange={(val) => updateForageItem(feed.id, val)}
                             className="w-full p-2 pl-10 border rounded focus:ring-2 focus:ring-emerald-500 outline-none bg-emerald-50/30 text-right"
                             placeholder="0"
+                            dir="ltr"
                             />
                             <span className="absolute left-3 top-2.5 text-slate-400 text-sm">كغ</span>
                         </div>
@@ -356,92 +352,82 @@ const FeedForm: React.FC<FeedFormProps> = ({
                       <div className="grid grid-cols-2 gap-4">
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">السعر (لكل كغ) $</label>
-                              <input 
-                                  type="number" step="0.1" 
+                              <DecimalInput 
                                   value={editingIngredient.defaultPrice} 
-                                  onChange={(e) => handleModalChange('defaultPrice', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('defaultPrice', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">المادة الجافة (DM %)</label>
-                              <input 
-                                  type="number" step="0.1" 
+                              <DecimalInput 
                                   value={editingIngredient.dm} 
-                                  onChange={(e) => handleModalChange('dm', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('dm', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">الطاقة (ME Mcal/kg DM)</label>
-                              <input 
-                                  type="number" step="0.01" 
+                              <DecimalInput 
                                   value={editingIngredient.me} 
-                                  onChange={(e) => handleModalChange('me', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('me', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">البروتين الخام (CP % DM)</label>
-                              <input 
-                                  type="number" step="0.1" 
+                              <DecimalInput 
                                   value={editingIngredient.cp} 
-                                  onChange={(e) => handleModalChange('cp', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('cp', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">الكالسيوم (Ca % DM)</label>
-                              <input 
-                                  type="number" step="0.01" 
+                              <DecimalInput 
                                   value={editingIngredient.ca} 
-                                  onChange={(e) => handleModalChange('ca', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('ca', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">الفوسفور (P % DM)</label>
-                              <input 
-                                  type="number" step="0.01" 
+                              <DecimalInput 
                                   value={editingIngredient.p} 
-                                  onChange={(e) => handleModalChange('p', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('p', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
                               />
                           </div>
                           {/* New Inputs */}
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">النشاء (Starch % DM)</label>
-                              <input 
-                                  type="number" step="0.1" 
+                              <DecimalInput 
                                   value={editingIngredient.starch} 
-                                  onChange={(e) => handleModalChange('starch', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('starch', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50/50 ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">السكر (Sugar % DM)</label>
-                              <input 
-                                  type="number" step="0.1" 
+                              <DecimalInput 
                                   value={editingIngredient.sugar} 
-                                  onChange={(e) => handleModalChange('sugar', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('sugar', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50/50 ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">ألياف NDF (% DM)</label>
-                              <input 
-                                  type="number" step="0.1" 
+                              <DecimalInput 
                                   value={editingIngredient.ndf} 
-                                  onChange={(e) => handleModalChange('ndf', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('ndf', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-emerald-50/50 ltr"
                               />
                           </div>
                           <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">ألياف ADF (% DM)</label>
-                              <input 
-                                  type="number" step="0.1" 
+                              <DecimalInput 
                                   value={editingIngredient.adf} 
-                                  onChange={(e) => handleModalChange('adf', parseFloat(e.target.value) || 0)}
+                                  onChange={(val) => handleModalChange('adf', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-emerald-50/50 ltr"
                               />
                           </div>

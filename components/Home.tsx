@@ -16,7 +16,7 @@ const Home: React.FC<HomeProps> = ({ setPage }) => {
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
           برنامج صياغة علائق الأبقار الحلوب الذكي
-          <span className="block text-emerald-600 text-2xl mt-2">(AEFHU 2026)</span>
+          <span className="block text-emerald-600 text-2xl mt-2">(Feed 2026)</span>
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
           نظام متكامل لحساب الاحتياجات الغذائية للأبقار الحلوب وفق أحدث المعايير العالمية، مع تحليل دقيق للعليقة وتنبؤات صحية مدعومة بالذكاء الاصطناعي.
@@ -89,7 +89,7 @@ const Home: React.FC<HomeProps> = ({ setPage }) => {
           <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
             <BookOpen className="w-6 h-6 text-blue-600" />
           </div>
-          <h3 className="font-bold text-slate-900 mb-2">معايير AEFHU 2026</h3>
+          <h3 className="font-bold text-slate-900 mb-2">معايير Feed 2026</h3>
           <p className="text-sm text-slate-500">استخدام أحدث المعادلات العالمية لحساب احتياجات الطاقة، البروتين، والألياف.</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">

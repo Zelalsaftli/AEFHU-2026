@@ -8,7 +8,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
 
   const w075 = Math.pow(params.weight, 0.75);
 
-  // 1. Maintenance (AEFHU 2026)
+  // 1. Maintenance (Feed 2026)
   // Base NEl maintenance is 0.10 Mcal/kg BW^0.75
   // Converting to ME: ME = NEl / 0.64 = 0.156
   let meMaintCoeff = 0.156; 
@@ -18,7 +18,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     meMaintCoeff *= 1.15; // +15% for Jerseys
   }
 
-  // Environment adjustment for Maintenance (AEFHU 2026 Table 3-1)
+  // Environment adjustment for Maintenance (Feed 2026 Table 3-1)
   // Heat stress (THI > 68) increases maintenance by 7-25%
   if (params.environment === 'heat_mild') {
     meMaintCoeff *= 1.10; 
@@ -47,7 +47,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   ca += caMaint;
   p += pMaint;
 
-  // 2. Milk Production (AEFHU 2026)
+  // 2. Milk Production (Feed 2026)
   // NEl (Mcal/kg) = 0.0929 * Fat% + 0.0547 * Protein% + 0.192 (assuming 4.85% lactose)
   const nelPerKgMilk = (0.0929 * params.fatPercentage) + (0.0547 * params.proteinPercentage) + 0.192;
   const mePerKgMilk = nelPerKgMilk / 0.64; 
@@ -59,11 +59,11 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   ca += params.milkProduction * 1.22;
   p += params.milkProduction * 0.9;
 
-  // 3. Pregnancy (AEFHU 2026)
+  // 3. Pregnancy (Feed 2026)
   // Requirements start increasing significantly after month 6
   if (params.pregnancyMonth > 6) {
     const daysPreg = (params.pregnancyMonth * 30);
-    // Simplified AEFHU 2026 Pregnancy NEl: (0.00318 * days - 0.0352) * (birth_weight/45)
+    // Simplified Feed 2026 Pregnancy NEl: (0.00318 * days - 0.0352) * (birth_weight/45)
     // At 270 days: ~2.5 Mcal NEl/d = 3.9 Mcal ME/d
     const pregFactor = (params.pregnancyMonth - 6);
     me += 2.0 * pregFactor; 
@@ -73,7 +73,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   }
 
   // 4. Growth
-  // AEFHU 2026 encourages adding growth requirements for Parity 1 & 2 even if user didn't specify rate
+  // Feed 2026 encourages adding growth requirements for Parity 1 & 2 even if user didn't specify rate
   let growthRateToUse = params.growthRate;
   if (growthRateToUse === 0) {
       if (params.lactationNumber === 1) growthRateToUse = 0.5; // Auto-add growth for 1st lactation

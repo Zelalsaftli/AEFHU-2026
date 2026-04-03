@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ activePage, setPage, onReset, onSave, c
     { id: Page.NEEDS, label: 'الاحتياجات', icon: Activity },
     { id: Page.FEED, label: 'تركيب العليقة', icon: Leaf },
     { id: Page.COMPARE, label: 'التحليل والمقارنة', icon: BarChart3 },
-    { id: Page.HEALTH, label: 'المستشار البيطري', icon: Activity },
+    { id: Page.HEALTH, label: 'المستشار الفني (بيطري/زراعي)', icon: Activity },
   ];
 
   const handlePrint = () => {
@@ -92,11 +92,11 @@ const Layout: React.FC<LayoutProps> = ({ activePage, setPage, onReset, onSave, c
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div>
                     <p className="text-emerald-400 font-bold text-lg mb-2">تقديم الطلاب</p>
-                    <p className="text-white text-lg">وفاء خلف طهماز و ميس حمود الداود</p>
+                    <p className="text-white text-lg">وفاء خلف طهماز & ميس حمود الداود</p>
                 </div>
                 <div>
                     <p className="text-emerald-400 font-bold text-lg mb-2">إشراف</p>
-                    <p className="text-white text-lg">د. ظلال الصافتلي و م. بتول المير سليمان</p>
+                    <p className="text-white text-lg">د. ظلال الصافتلي & م. بتول المير سليمان</p>
                 </div>
             </div>
             <div className="text-sm border-t border-slate-700 pt-6 opacity-80">
@@ -111,11 +111,11 @@ const Layout: React.FC<LayoutProps> = ({ activePage, setPage, onReset, onSave, c
         <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
                 <p className="font-bold text-emerald-800">تقديم الطلاب</p>
-                <p>وفاء خلف طهماز و ميس حمود الداود</p>
+                <p>وفاء خلف طهماز & ميس حمود الداود</p>
             </div>
             <div>
                 <p className="font-bold text-emerald-800">إشراف</p>
-                <p>د. ظلال الصافتلي و م. بتول المير سليمان</p>
+                <p>د. ظلال الصافتلي & م. بتول المير سليمان</p>
             </div>
         </div>
         <p className="text-sm font-bold">قسم الإنتاج الحيواني - كلية الهندسة الزراعية - جامعة حماه</p>
