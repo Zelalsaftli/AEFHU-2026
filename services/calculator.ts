@@ -5,6 +5,8 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   let cp = 0;
   let rdp = 0;
   let rup = 0;
+  let lysine = 0;
+  let methionine = 0;
   let ca = 0;
   let p = 0;
 
@@ -161,11 +163,23 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   rdp = cp * rdpPercent;
   rup = cp * rupPercent;
 
+  // 7. Metabolizable Protein (MP) and Amino Acids
+  // MP = (Microbial Protein) + (Digestible RUP)
+  // Microbial CP (g) approx = 10.1 * ME (Mcal)
+  const microbialCP = 10.1 * me;
+  const mp = (microbialCP * 0.8) + (rup * 0.8);
+  
+  // Targets: Lysine ~7.0% of MP, Methionine ~2.6% of MP
+  lysine = mp * 0.07;
+  methionine = mp * 0.026;
+
   return {
     me: parseFloat(me.toFixed(2)),
     cp: Math.round(cp),
     rdp: Math.round(rdp),
     rup: Math.round(rup),
+    lysine: Math.round(lysine),
+    methionine: Math.round(methionine),
     ca: Math.round(ca),
     p: Math.round(p),
     ndf: Math.round(ndfReq),
@@ -191,6 +205,8 @@ export const calculateSupplied = (
   let totalCP = 0;
   let totalRDP = 0;
   let totalRUP = 0;
+  let totalLys = 0;
+  let totalMet = 0;
   let totalCa = 0;
   let totalP = 0;
   let totalStarch = 0;
@@ -205,7 +221,7 @@ export const calculateSupplied = (
   // 1. Calculate Concentrate Mix Analysis (per 1kg of mix)
   const totalParts = concentrateMix.reduce((acc, item) => acc + item.amount, 0);
   
-  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixADF = 0;
+  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixADF = 0;
 
   if (totalParts > 0) {
     concentrateMix.forEach(item => {
@@ -214,11 +230,15 @@ export const calculateSupplied = (
             const ratio = item.amount / totalParts; 
             const dmFactor = feed.dm / 100;
             const cpInMix = (feed.cp * 10 * dmFactor) * ratio;
+            const rupInMix = cpInMix * (feed.rup / 100);
             
             mixME += (feed.me * dmFactor) * ratio;
             mixCP += cpInMix;
             mixRDP += (cpInMix * (feed.rdp / 100));
-            mixRUP += (cpInMix * (feed.rup / 100));
+            mixRUP += rupInMix;
+            // Lys/Met from RUP (Digestible part ~80%)
+            mixLys += (rupInMix * 0.8 * (feed.lysine / 100));
+            mixMet += (rupInMix * 0.8 * (feed.methionine / 100));
             mixCa += (feed.ca * 10 * dmFactor) * ratio;
             mixP += (feed.p * 10 * dmFactor) * ratio;
             mixStarch += (feed.starch * 10 * dmFactor) * ratio;
@@ -229,13 +249,15 @@ export const calculateSupplied = (
     });
   }
 
-  const concAnalysis = { me: mixME, cp: mixCP, rdp: mixRDP, rup: mixRUP, ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, adf: mixADF };
+  const concAnalysis = { me: mixME, cp: mixCP, rdp: mixRDP, rup: mixRUP, lysine: mixLys, methionine: mixMet, ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, adf: mixADF };
 
   // 2. Add Concentrate Supplied to Total
   totalME += mixME * concentrateAmountFed;
   totalCP += mixCP * concentrateAmountFed;
   totalRDP += mixRDP * concentrateAmountFed;
   totalRUP += mixRUP * concentrateAmountFed;
+  totalLys += mixLys * concentrateAmountFed;
+  totalMet += mixMet * concentrateAmountFed;
   totalCa += mixCa * concentrateAmountFed;
   totalP += mixP * concentrateAmountFed;
   totalStarch += mixStarch * concentrateAmountFed;
@@ -259,11 +281,15 @@ export const calculateSupplied = (
           const dmFactor = feed.dm / 100;
           const kgDM = item.amount * dmFactor;
           const cpSupplied = feed.cp * 10 * kgDM;
+          const rupSupplied = cpSupplied * (feed.rup / 100);
           
           totalME += feed.me * kgDM;
           totalCP += cpSupplied;
           totalRDP += (cpSupplied * (feed.rdp / 100));
-          totalRUP += (cpSupplied * (feed.rup / 100));
+          totalRUP += rupSupplied;
+          // Lys/Met from RUP (Digestible part ~80%)
+          totalLys += (rupSupplied * 0.8 * (feed.lysine / 100));
+          totalMet += (rupSupplied * 0.8 * (feed.methionine / 100));
           totalCa += feed.ca * 10 * kgDM;
           totalP += feed.p * 10 * kgDM;
           
@@ -281,11 +307,19 @@ export const calculateSupplied = (
   const concentratePercent = totalDM > 0 ? (concentrateDM / totalDM) * 100 : 0;
   const foragePercent = totalDM > 0 ? (forageDM / totalDM) * 100 : 0;
 
+  // 4. Add Microbial Amino Acid Contribution
+  // Microbial CP (g) = 10.1 * totalME
+  const totalMicrobialCP = 10.1 * totalME;
+  totalLys += (totalMicrobialCP * 0.8 * 0.16); // Microbial Lysine ~16% of microbial protein
+  totalMet += (totalMicrobialCP * 0.8 * 0.05); // Microbial Methionine ~5% of microbial protein
+
   return {
     me: parseFloat(totalME.toFixed(2)),
     cp: Math.round(totalCP),
     rdp: Math.round(totalRDP),
     rup: Math.round(totalRUP),
+    lysine: Math.round(totalLys),
+    methionine: Math.round(totalMet),
     ca: Math.round(totalCa),
     p: Math.round(totalP),
     starch: Math.round(totalStarch),
@@ -298,6 +332,8 @@ export const calculateSupplied = (
         cp: Math.round(mixCP),
         rdp: Math.round(mixRDP),
         rup: Math.round(mixRUP),
+        lysine: Math.round(mixLys),
+        methionine: Math.round(mixMet),
         ca: Math.round(mixCa),
         p: Math.round(mixP),
         starch: Math.round(mixStarch),

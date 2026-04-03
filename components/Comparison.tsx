@@ -218,6 +218,28 @@ const Comparison: React.FC<ComparisonProps> = ({
                             </span>
                         </td>
                     </tr>
+                    <tr className="bg-purple-50/30 border-b hover:bg-purple-50/50">
+                        <td className="px-6 py-4 font-medium text-purple-900 pr-10">• اللايسين الاستقلابي (Lys)</td>
+                        <td className="px-6 py-4">{needs?.lysine} g</td>
+                        <td className="px-6 py-4">{supplied?.lysine} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.lysine / totalDM).toFixed(1)} g/kg</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.lysine, supplied?.lysine)}`}>
+                                {getStatusText(needs?.lysine, supplied?.lysine)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-purple-50/30 border-b hover:bg-purple-50/50">
+                        <td className="px-6 py-4 font-medium text-purple-900 pr-10">• الميثيونين الاستقلابي (Met)</td>
+                        <td className="px-6 py-4">{needs?.methionine} g</td>
+                        <td className="px-6 py-4">{supplied?.methionine} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.methionine / totalDM).toFixed(1)} g/kg</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.methionine, supplied?.methionine)}`}>
+                                {getStatusText(needs?.methionine, supplied?.methionine)}
+                            </span>
+                        </td>
+                    </tr>
                     {/* Fiber & Carbs */}
                     <tr className="bg-slate-50/50 border-b hover:bg-slate-50">
                         <td className="px-6 py-4 font-medium text-slate-900">NDF (ألياف متعادلة)</td>

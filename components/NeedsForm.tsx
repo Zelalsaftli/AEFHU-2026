@@ -247,9 +247,15 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
             <div className="bg-white p-4 rounded-lg shadow-sm text-center flex flex-col justify-center">
                 <p className="text-sm text-slate-500 mb-1">البروتين الخام (CP)</p>
                 <p className="text-2xl font-bold text-blue-600">{calculatedNeeds.cp}</p>
-                <div className="flex justify-center gap-2 mt-1 pt-1 border-t border-slate-50">
-                    <div className="text-[10px] text-slate-400">RDP: <span className="text-slate-600 font-medium">{calculatedNeeds.rdp}</span></div>
-                    <div className="text-[10px] text-slate-400">RUP: <span className="text-slate-600 font-medium">{calculatedNeeds.rup}</span></div>
+                <div className="flex flex-col gap-1 mt-1 pt-1 border-t border-slate-50">
+                    <div className="flex justify-center gap-2">
+                        <div className="text-[10px] text-slate-400">RDP: <span className="text-slate-600 font-medium">{calculatedNeeds.rdp}</span></div>
+                        <div className="text-[10px] text-slate-400">RUP: <span className="text-slate-600 font-medium">{calculatedNeeds.rup}</span></div>
+                    </div>
+                    <div className="flex justify-center gap-2">
+                        <div className="text-[9px] text-purple-400">Lys: <span className="text-purple-600 font-medium">{calculatedNeeds.lysine}</span></div>
+                        <div className="text-[9px] text-purple-400">Met: <span className="text-purple-600 font-medium">{calculatedNeeds.methionine}</span></div>
+                    </div>
                 </div>
                 <p className="text-[10px] text-slate-400">g/day</p>
             </div>

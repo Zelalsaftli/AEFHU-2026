@@ -101,6 +101,8 @@ const FeedForm: React.FC<FeedFormProps> = ({
         cp: 10,
         rdp: 65,
         rup: 35,
+        lysine: 4.0,
+        methionine: 1.5,
         ca: 0.1,
         p: 0.1,
         starch: 0,
@@ -256,6 +258,14 @@ const FeedForm: React.FC<FeedFormProps> = ({
                   <div className="text-xl font-bold ltr">{(mixAnalysis.adf / 10).toFixed(1)}%</div>
                   <div className="text-[10px] opacity-80">ADF</div>
               </div>
+              <div className="col-span-2 md:col-span-1 border-t border-blue-400 pt-1">
+                  <div className="text-xs font-bold ltr">{mixAnalysis.lysine.toFixed(1)}g</div>
+                  <div className="text-[8px] opacity-80">Lysine</div>
+              </div>
+              <div className="col-span-2 md:col-span-1 border-t border-blue-400 pt-1">
+                  <div className="text-xs font-bold ltr">{mixAnalysis.methionine.toFixed(1)}g</div>
+                  <div className="text-[8px] opacity-80">Methionine</div>
+              </div>
           </div>
       </div>
 
@@ -398,6 +408,22 @@ const FeedForm: React.FC<FeedFormProps> = ({
                                   value={editingIngredient.rup} 
                                   onChange={(val) => handleModalChange('rup', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50/30 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">اللايسين (% من البروتين)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.lysine} 
+                                  onChange={(val) => handleModalChange('lysine', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-purple-50/30 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">الميثيونين (% من البروتين)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.methionine} 
+                                  onChange={(val) => handleModalChange('methionine', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-purple-50/30 ltr"
                               />
                           </div>
                           <div>

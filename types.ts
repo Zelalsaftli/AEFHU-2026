@@ -24,6 +24,8 @@ export interface Nutrients {
   p: number; // Phosphorus (g)
   rdp: number; // Rumen Degradable Protein (g)
   rup: number; // Rumen Undegradable Protein (g)
+  lysine: number; // Metabolizable Lysine (g)
+  methionine: number; // Metabolizable Methionine (g)
   starch: number; // % DM (displayed) or g (calculated)
   sugar: number; // % DM or g
   ndf: number; // Neutral Detergent Fiber (g)
@@ -40,6 +42,8 @@ export interface FeedIngredient {
   cp: number; // % DM
   rdp: number; // % of CP (Rumen Degradable Protein)
   rup: number; // % of CP (Rumen Undegradable Protein)
+  lysine: number; // % of CP (Lysine content)
+  methionine: number; // % of CP (Methionine content)
   ca: number; // % DM
   p: number; // % DM
   starch: number; // % DM
