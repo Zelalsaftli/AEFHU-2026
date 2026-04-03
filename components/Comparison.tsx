@@ -196,6 +196,28 @@ const Comparison: React.FC<ComparisonProps> = ({
                             </span>
                         </td>
                     </tr>
+                    <tr className="bg-blue-50/30 border-b hover:bg-blue-50/50">
+                        <td className="px-6 py-4 font-medium text-blue-900 pr-10">• البروتين القابل للتفكك (RDP)</td>
+                        <td className="px-6 py-4">{needs?.rdp} g</td>
+                        <td className="px-6 py-4">{supplied?.rdp} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.rdp / (totalDM * 10)).toFixed(1)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.rdp, supplied?.rdp)}`}>
+                                {getStatusText(needs?.rdp, supplied?.rdp)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-blue-50/30 border-b hover:bg-blue-50/50">
+                        <td className="px-6 py-4 font-medium text-blue-900 pr-10">• البروتين العابر (RUP)</td>
+                        <td className="px-6 py-4">{needs?.rup} g</td>
+                        <td className="px-6 py-4">{supplied?.rup} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.rup / (totalDM * 10)).toFixed(1)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.rup, supplied?.rup)}`}>
+                                {getStatusText(needs?.rup, supplied?.rup)}
+                            </span>
+                        </td>
+                    </tr>
                     {/* Fiber & Carbs */}
                     <tr className="bg-slate-50/50 border-b hover:bg-slate-50">
                         <td className="px-6 py-4 font-medium text-slate-900">NDF (ألياف متعادلة)</td>

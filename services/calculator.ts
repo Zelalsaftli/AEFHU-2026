@@ -3,6 +3,8 @@ import { CowParameters, Nutrients, RationItem, FeedIngredient } from '../types';
 export const calculateRequirements = (params: CowParameters): Nutrients => {
   let me = 0;
   let cp = 0;
+  let rdp = 0;
+  let rup = 0;
   let ca = 0;
   let p = 0;
 
@@ -112,8 +114,13 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   // Base DMI (NASEM 2021)
   let predictedDmi = (0.0115 * params.weight) + (0.384 * ecm);
   
+  // Dry Period Adjustment for DMI
+  if (params.lactationStage === 'dry') {
+      predictedDmi = params.weight * 0.02; // Approx 2% of BW for dry cows
+  }
+
   // Parity Adjustment for DMI (NASEM 2021 often applies a factor for primiparous)
-  if (params.lactationNumber === 1) {
+  if (params.lactationNumber === 1 && params.lactationStage !== 'dry') {
       predictedDmi = predictedDmi * 0.95; // 5% reduction for 1st lactation in some NASEM contexts
   }
 
@@ -138,9 +145,27 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   const starchMax = estimatedDMI * 1000 * 0.26; // in grams (Max limit)
   const sugarReq = estimatedDMI * 1000 * 0.05; // in grams (Rough target)
 
+  // 6. Protein Fractions (RDP/RUP)
+  // Standard: RDP is ~65% of CP, RUP is ~35%
+  let rdpPercent = 0.65;
+  let rupPercent = 0.35;
+
+  if (params.lactationStage === 'early') {
+      rupPercent = 0.42; // Higher RUP needed for peak
+      rdpPercent = 0.58;
+  } else if (params.lactationStage === 'dry') {
+      rupPercent = 0.30; // Lower RUP needed
+      rdpPercent = 0.70;
+  }
+
+  rdp = cp * rdpPercent;
+  rup = cp * rupPercent;
+
   return {
     me: parseFloat(me.toFixed(2)),
     cp: Math.round(cp),
+    rdp: Math.round(rdp),
+    rup: Math.round(rup),
     ca: Math.round(ca),
     p: Math.round(p),
     ndf: Math.round(ndfReq),
@@ -164,6 +189,8 @@ export const calculateSupplied = (
   
   let totalME = 0;
   let totalCP = 0;
+  let totalRDP = 0;
+  let totalRUP = 0;
   let totalCa = 0;
   let totalP = 0;
   let totalStarch = 0;
@@ -178,7 +205,7 @@ export const calculateSupplied = (
   // 1. Calculate Concentrate Mix Analysis (per 1kg of mix)
   const totalParts = concentrateMix.reduce((acc, item) => acc + item.amount, 0);
   
-  let mixME = 0, mixCP = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixADF = 0;
+  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixADF = 0;
 
   if (totalParts > 0) {
     concentrateMix.forEach(item => {
@@ -186,9 +213,12 @@ export const calculateSupplied = (
         if (feed) {
             const ratio = item.amount / totalParts; 
             const dmFactor = feed.dm / 100;
+            const cpInMix = (feed.cp * 10 * dmFactor) * ratio;
             
             mixME += (feed.me * dmFactor) * ratio;
-            mixCP += (feed.cp * 10 * dmFactor) * ratio;
+            mixCP += cpInMix;
+            mixRDP += (cpInMix * (feed.rdp / 100));
+            mixRUP += (cpInMix * (feed.rup / 100));
             mixCa += (feed.ca * 10 * dmFactor) * ratio;
             mixP += (feed.p * 10 * dmFactor) * ratio;
             mixStarch += (feed.starch * 10 * dmFactor) * ratio;
@@ -199,11 +229,13 @@ export const calculateSupplied = (
     });
   }
 
-  const concAnalysis = { me: mixME, cp: mixCP, ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, adf: mixADF };
+  const concAnalysis = { me: mixME, cp: mixCP, rdp: mixRDP, rup: mixRUP, ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, adf: mixADF };
 
   // 2. Add Concentrate Supplied to Total
   totalME += mixME * concentrateAmountFed;
   totalCP += mixCP * concentrateAmountFed;
+  totalRDP += mixRDP * concentrateAmountFed;
+  totalRUP += mixRUP * concentrateAmountFed;
   totalCa += mixCa * concentrateAmountFed;
   totalP += mixP * concentrateAmountFed;
   totalStarch += mixStarch * concentrateAmountFed;
@@ -226,9 +258,12 @@ export const calculateSupplied = (
       if (feed && item.amount > 0) {
           const dmFactor = feed.dm / 100;
           const kgDM = item.amount * dmFactor;
+          const cpSupplied = feed.cp * 10 * kgDM;
           
           totalME += feed.me * kgDM;
-          totalCP += feed.cp * 10 * kgDM;
+          totalCP += cpSupplied;
+          totalRDP += (cpSupplied * (feed.rdp / 100));
+          totalRUP += (cpSupplied * (feed.rup / 100));
           totalCa += feed.ca * 10 * kgDM;
           totalP += feed.p * 10 * kgDM;
           
@@ -249,6 +284,8 @@ export const calculateSupplied = (
   return {
     me: parseFloat(totalME.toFixed(2)),
     cp: Math.round(totalCP),
+    rdp: Math.round(totalRDP),
+    rup: Math.round(totalRUP),
     ca: Math.round(totalCa),
     p: Math.round(totalP),
     starch: Math.round(totalStarch),
@@ -259,6 +296,8 @@ export const calculateSupplied = (
     concentrateAnalysis: {
         me: parseFloat(mixME.toFixed(2)),
         cp: Math.round(mixCP),
+        rdp: Math.round(mixRDP),
+        rup: Math.round(mixRUP),
         ca: Math.round(mixCa),
         p: Math.round(mixP),
         starch: Math.round(mixStarch),

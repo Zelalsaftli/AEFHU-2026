@@ -8,7 +8,7 @@ export interface CowParameters {
   growthRate: number; // kg/day (heifers)
   bcsChange: number; // -1 to +1 (loss/gain)
   currentBcs: number; // 1-5 scale
-  lactationStage: 'early' | 'mid' | 'late';
+  lactationStage: 'early' | 'mid' | 'late' | 'dry';
   environment: 'neutral' | 'heat_mild' | 'heat_severe' | 'cold';
   grazing: 'none' | 'flat' | 'hilly';
   // New Factors
@@ -22,6 +22,8 @@ export interface Nutrients {
   cp: number; // Crude Protein (g)
   ca: number; // Calcium (g)
   p: number; // Phosphorus (g)
+  rdp: number; // Rumen Degradable Protein (g)
+  rup: number; // Rumen Undegradable Protein (g)
   starch: number; // % DM (displayed) or g (calculated)
   sugar: number; // % DM or g
   ndf: number; // Neutral Detergent Fiber (g)
@@ -36,6 +38,8 @@ export interface FeedIngredient {
   dm: number; // Dry Matter %
   me: number; // Mcal/kg DM
   cp: number; // % DM
+  rdp: number; // % of CP (Rumen Degradable Protein)
+  rup: number; // % of CP (Rumen Undegradable Protein)
   ca: number; // % DM
   p: number; // % DM
   starch: number; // % DM

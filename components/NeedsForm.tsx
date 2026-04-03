@@ -176,6 +176,22 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
           </div>
 
           <div className="form-group">
+            <label className="block text-sm font-medium text-slate-700 mb-2">مرحلة موسم الحليب</label>
+            <select
+              name="lactationStage"
+              value={params.lactationStage}
+              onChange={handleChange}
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
+            >
+              <option value="early">بداية الموسم (Early - قمة الإنتاج)</option>
+              <option value="mid">منتصف الموسم (Mid)</option>
+              <option value="late">نهاية الموسم (Late)</option>
+              <option value="dry">فترة التجفيف (Dry Period)</option>
+            </select>
+            <p className="text-[10px] text-slate-400 mt-1">تؤثر على توازن الطاقة والاحتياجات</p>
+          </div>
+
+          <div className="form-group">
             <label className="block text-sm font-medium text-slate-700 mb-2">الظروف البيئية (الإجهاد الحراري)</label>
             <select
               name="environment"
@@ -231,7 +247,11 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
             <div className="bg-white p-4 rounded-lg shadow-sm text-center flex flex-col justify-center">
                 <p className="text-sm text-slate-500 mb-1">البروتين الخام (CP)</p>
                 <p className="text-2xl font-bold text-blue-600">{calculatedNeeds.cp}</p>
-                <p className="text-xs text-slate-400">g/day</p>
+                <div className="flex justify-center gap-2 mt-1 pt-1 border-t border-slate-50">
+                    <div className="text-[10px] text-slate-400">RDP: <span className="text-slate-600 font-medium">{calculatedNeeds.rdp}</span></div>
+                    <div className="text-[10px] text-slate-400">RUP: <span className="text-slate-600 font-medium">{calculatedNeeds.rup}</span></div>
+                </div>
+                <p className="text-[10px] text-slate-400">g/day</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm text-center flex flex-col justify-center">
                 <p className="text-sm text-slate-500 mb-1">الكالسيوم (Ca)</p>

@@ -99,6 +99,8 @@ const FeedForm: React.FC<FeedFormProps> = ({
         dm: 90,
         me: 2.0,
         cp: 10,
+        rdp: 65,
+        rup: 35,
         ca: 0.1,
         p: 0.1,
         starch: 0,
@@ -380,6 +382,22 @@ const FeedForm: React.FC<FeedFormProps> = ({
                                   value={editingIngredient.cp} 
                                   onChange={(val) => handleModalChange('cp', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">RDP (% من البروتين)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.rdp} 
+                                  onChange={(val) => handleModalChange('rdp', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50/30 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">RUP (% من البروتين)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.rup} 
+                                  onChange={(val) => handleModalChange('rup', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50/30 ltr"
                               />
                           </div>
                           <div>
