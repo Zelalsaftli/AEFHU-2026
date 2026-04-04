@@ -36,7 +36,9 @@ const App: React.FC = () => {
   // State: Requirements (Calculated)
   // Initialized with all properties to avoid runtime/type errors
   const [needs, setNeeds] = useState<Nutrients>({ 
-    me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, ca: 0, p: 0, 
+    me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
+    na: 0, k: 0, cl: 0, s: 0, dcad: 0,
+    ca: 0, p: 0, 
     starch: 0, sugar: 0, ndf: 0, adf: 0,
     predictedDmi: 0
   });
@@ -51,12 +53,16 @@ const App: React.FC = () => {
   
   // State: Supplied (Calculated)
   const [supplied, setSupplied] = useState<Nutrients>({ 
-    me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, ca: 0, p: 0,
+    me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
+    na: 0, k: 0, cl: 0, s: 0, dcad: 0,
+    ca: 0, p: 0,
     starch: 0, sugar: 0, ndf: 0, adf: 0
   });
   const [totalDM, setTotalDM] = useState<number>(0);
   const [mixAnalysis, setMixAnalysis] = useState<Nutrients>({ 
-    me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, ca: 0, p: 0,
+    me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
+    na: 0, k: 0, cl: 0, s: 0, dcad: 0,
+    ca: 0, p: 0,
     starch: 0, sugar: 0, ndf: 0, adf: 0
   });
   const [rationStructure, setRationStructure] = useState<{ 

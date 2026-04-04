@@ -7,6 +7,11 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   let rup = 0;
   let lysine = 0;
   let methionine = 0;
+  let na = 0;
+  let k = 0;
+  let cl = 0;
+  let s = 0;
+  let dcad = 0;
   let ca = 0;
   let p = 0;
 
@@ -173,6 +178,15 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   lysine = mp * 0.07;
   methionine = mp * 0.026;
 
+  // 8. DCAD Requirements (mEq/kg DM)
+  if (params.lactationStage === 'dry') {
+    // Close-up vs Far-off (approximate by pregnancy month or DIM if available)
+    // Here we use a general rule: dry cows target lower or negative DCAD
+    dcad = params.pregnancyMonth >= 8 ? -100 : 100; 
+  } else {
+    dcad = 300; // Lactating cows target positive DCAD
+  }
+
   return {
     me: parseFloat(me.toFixed(2)),
     cp: Math.round(cp),
@@ -180,6 +194,11 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     rup: Math.round(rup),
     lysine: Math.round(lysine),
     methionine: Math.round(methionine),
+    na: Math.round(predictedDmi * 2.5), // Approx 2.5g/kg DMI
+    k: Math.round(predictedDmi * 10), // Approx 10g/kg DMI
+    cl: Math.round(predictedDmi * 2.5), 
+    s: Math.round(predictedDmi * 2.0),
+    dcad: dcad,
     ca: Math.round(ca),
     p: Math.round(p),
     ndf: Math.round(ndfReq),
@@ -207,6 +226,10 @@ export const calculateSupplied = (
   let totalRUP = 0;
   let totalLys = 0;
   let totalMet = 0;
+  let totalNa = 0;
+  let totalK = 0;
+  let totalCl = 0;
+  let totalS = 0;
   let totalCa = 0;
   let totalP = 0;
   let totalStarch = 0;
@@ -221,7 +244,7 @@ export const calculateSupplied = (
   // 1. Calculate Concentrate Mix Analysis (per 1kg of mix)
   const totalParts = concentrateMix.reduce((acc, item) => acc + item.amount, 0);
   
-  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixADF = 0;
+  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixADF = 0;
 
   if (totalParts > 0) {
     concentrateMix.forEach(item => {
@@ -239,6 +262,10 @@ export const calculateSupplied = (
             // Lys/Met from RUP (Digestible part ~80%)
             mixLys += (rupInMix * 0.8 * (feed.lysine / 100));
             mixMet += (rupInMix * 0.8 * (feed.methionine / 100));
+            mixNa += (feed.na * 10 * dmFactor) * ratio;
+            mixK += (feed.k * 10 * dmFactor) * ratio;
+            mixCl += (feed.cl * 10 * dmFactor) * ratio;
+            mixS += (feed.s * 10 * dmFactor) * ratio;
             mixCa += (feed.ca * 10 * dmFactor) * ratio;
             mixP += (feed.p * 10 * dmFactor) * ratio;
             mixStarch += (feed.starch * 10 * dmFactor) * ratio;
@@ -249,7 +276,13 @@ export const calculateSupplied = (
     });
   }
 
-  const concAnalysis = { me: mixME, cp: mixCP, rdp: mixRDP, rup: mixRUP, lysine: mixLys, methionine: mixMet, ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, adf: mixADF };
+    const concAnalysis = { 
+        me: mixME, cp: mixCP, rdp: mixRDP, rup: mixRUP, 
+        lysine: mixLys, methionine: mixMet, 
+        na: mixNa, k: mixK, cl: mixCl, s: mixS, 
+        dcad: (mixNa / 0.023 + mixK / 0.039) - (mixCl / 0.0355 + mixS / 0.016),
+        ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, adf: mixADF 
+    };
 
   // 2. Add Concentrate Supplied to Total
   totalME += mixME * concentrateAmountFed;
@@ -258,6 +291,10 @@ export const calculateSupplied = (
   totalRUP += mixRUP * concentrateAmountFed;
   totalLys += mixLys * concentrateAmountFed;
   totalMet += mixMet * concentrateAmountFed;
+  totalNa += mixNa * concentrateAmountFed;
+  totalK += mixK * concentrateAmountFed;
+  totalCl += mixCl * concentrateAmountFed;
+  totalS += mixS * concentrateAmountFed;
   totalCa += mixCa * concentrateAmountFed;
   totalP += mixP * concentrateAmountFed;
   totalStarch += mixStarch * concentrateAmountFed;
@@ -290,6 +327,10 @@ export const calculateSupplied = (
           // Lys/Met from RUP (Digestible part ~80%)
           totalLys += (rupSupplied * 0.8 * (feed.lysine / 100));
           totalMet += (rupSupplied * 0.8 * (feed.methionine / 100));
+          totalNa += feed.na * 10 * kgDM;
+          totalK += feed.k * 10 * kgDM;
+          totalCl += feed.cl * 10 * kgDM;
+          totalS += feed.s * 10 * kgDM;
           totalCa += feed.ca * 10 * kgDM;
           totalP += feed.p * 10 * kgDM;
           
@@ -313,6 +354,16 @@ export const calculateSupplied = (
   totalLys += (totalMicrobialCP * 0.8 * 0.16); // Microbial Lysine ~16% of microbial protein
   totalMet += (totalMicrobialCP * 0.8 * 0.05); // Microbial Methionine ~5% of microbial protein
 
+  // 5. Calculate DCAD (mEq/kg DM)
+  // DCAD = [(Na/0.023) + (K/0.039)] - [(Cl/0.0355) + (S/0.016)] where minerals are in g/kg DM
+  // Our totalNa is in g. We need g/kg DM.
+  const na_g_kg = totalDM > 0 ? totalNa / totalDM : 0;
+  const k_g_kg = totalDM > 0 ? totalK / totalDM : 0;
+  const cl_g_kg = totalDM > 0 ? totalCl / totalDM : 0;
+  const s_g_kg = totalDM > 0 ? totalS / totalDM : 0;
+
+  const totalDCAD = (na_g_kg / 0.023 + k_g_kg / 0.039) - (cl_g_kg / 0.0355 + s_g_kg / 0.016);
+
   return {
     me: parseFloat(totalME.toFixed(2)),
     cp: Math.round(totalCP),
@@ -320,6 +371,11 @@ export const calculateSupplied = (
     rup: Math.round(totalRUP),
     lysine: Math.round(totalLys),
     methionine: Math.round(totalMet),
+    na: Math.round(totalNa),
+    k: Math.round(totalK),
+    cl: Math.round(totalCl),
+    s: Math.round(totalS),
+    dcad: Math.round(totalDCAD),
     ca: Math.round(totalCa),
     p: Math.round(totalP),
     starch: Math.round(totalStarch),
@@ -334,6 +390,11 @@ export const calculateSupplied = (
         rup: Math.round(mixRUP),
         lysine: Math.round(mixLys),
         methionine: Math.round(mixMet),
+        na: Math.round(mixNa),
+        k: Math.round(mixK),
+        cl: Math.round(mixCl),
+        s: Math.round(mixS),
+        dcad: Math.round((mixNa / 0.023 + mixK / 0.039) - (mixCl / 0.0355 + mixS / 0.016)),
         ca: Math.round(mixCa),
         p: Math.round(mixP),
         starch: Math.round(mixStarch),

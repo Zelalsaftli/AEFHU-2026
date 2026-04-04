@@ -26,6 +26,11 @@ export interface Nutrients {
   rup: number; // Rumen Undegradable Protein (g)
   lysine: number; // Metabolizable Lysine (g)
   methionine: number; // Metabolizable Methionine (g)
+  na: number; // Sodium (g)
+  k: number; // Potassium (g)
+  cl: number; // Chlorine (g)
+  s: number; // Sulfur (g)
+  dcad: number; // mEq/kg DM
   starch: number; // % DM (displayed) or g (calculated)
   sugar: number; // % DM or g
   ndf: number; // Neutral Detergent Fiber (g)
@@ -46,6 +51,10 @@ export interface FeedIngredient {
   methionine: number; // % of CP (Methionine content)
   ca: number; // % DM
   p: number; // % DM
+  na: number; // % DM
+  k: number; // % DM
+  cl: number; // % DM
+  s: number; // % DM
   starch: number; // % DM
   sugar: number; // % DM
   ndf: number; // % DM

@@ -105,6 +105,10 @@ const FeedForm: React.FC<FeedFormProps> = ({
         methionine: 1.5,
         ca: 0.1,
         p: 0.1,
+        na: 0.05,
+        k: 0.5,
+        cl: 0.1,
+        s: 0.1,
         starch: 0,
         sugar: 0,
         ndf: 10,
@@ -265,6 +269,10 @@ const FeedForm: React.FC<FeedFormProps> = ({
               <div className="col-span-2 md:col-span-1 border-t border-blue-400 pt-1">
                   <div className="text-xs font-bold ltr">{mixAnalysis.methionine.toFixed(1)}g</div>
                   <div className="text-[8px] opacity-80">Methionine</div>
+              </div>
+              <div className="col-span-2 md:col-span-1 border-t border-blue-400 pt-1">
+                  <div className="text-xs font-bold ltr">{mixAnalysis.dcad.toFixed(0)}</div>
+                  <div className="text-[8px] opacity-80">DCAD (mEq)</div>
               </div>
           </div>
       </div>
@@ -440,6 +448,38 @@ const FeedForm: React.FC<FeedFormProps> = ({
                                   value={editingIngredient.p} 
                                   onChange={(val) => handleModalChange('p', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">الصوديوم (Na % DM)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.na} 
+                                  onChange={(val) => handleModalChange('na', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-yellow-50/30 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">البوتاسيوم (K % DM)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.k} 
+                                  onChange={(val) => handleModalChange('k', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-yellow-50/30 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">الكلور (Cl % DM)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.cl} 
+                                  onChange={(val) => handleModalChange('cl', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-yellow-50/30 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">الكبريت (S % DM)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.s} 
+                                  onChange={(val) => handleModalChange('s', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-yellow-50/30 ltr"
                               />
                           </div>
                           {/* New Inputs */}

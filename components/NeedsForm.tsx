@@ -269,6 +269,16 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
                 <p className="text-2xl font-bold text-purple-600">{calculatedNeeds.p}</p>
                 <p className="text-xs text-slate-400">g/day</p>
             </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm text-center flex flex-col justify-center">
+                <p className="text-sm text-slate-500 mb-1">توازن الكاتيونات والأنيونات (DCAD)</p>
+                <p className={`text-2xl font-bold ${calculatedNeeds.dcad < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {calculatedNeeds.dcad}
+                </p>
+                <p className="text-[10px] text-slate-400">mEq/kg DM</p>
+                <p className="text-[9px] text-slate-400 mt-1">
+                    {calculatedNeeds.dcad < 0 ? 'فترة التجفيف القريبة' : 'فترة الحليب'}
+                </p>
+            </div>
         </div>
       </div>
     </div>

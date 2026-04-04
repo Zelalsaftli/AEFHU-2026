@@ -295,7 +295,7 @@ const Comparison: React.FC<ComparisonProps> = ({
                             </span>
                         </td>
                     </tr>
-                    <tr className="bg-white">
+                    <tr className="bg-white border-b hover:bg-slate-50">
                         <td className="px-6 py-4 font-medium text-slate-900">الفوسفور (P)</td>
                         <td className="px-6 py-4">{needs?.p} g</td>
                         <td className="px-6 py-4">{supplied?.p} g</td>
@@ -303,6 +303,17 @@ const Comparison: React.FC<ComparisonProps> = ({
                         <td className="px-6 py-4">
                             <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.p, supplied?.p)}`}>
                                 {getStatusText(needs?.p, supplied?.p)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-yellow-50/30 border-b hover:bg-yellow-50/50">
+                        <td className="px-6 py-4 font-medium text-yellow-900 pr-10">• توازن الكاتيونات والأنيونات (DCAD)</td>
+                        <td className="px-6 py-4">{needs?.dcad} mEq</td>
+                        <td className="px-6 py-4">{supplied?.dcad} mEq</td>
+                        <td className="px-6 py-4 ltr text-right">---</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${Math.abs(needs?.dcad - supplied?.dcad) < 50 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                {Math.abs(needs?.dcad - supplied?.dcad) < 50 ? 'متوازن' : 'تحتاج مراجعة'}
                             </span>
                         </td>
                     </tr>
