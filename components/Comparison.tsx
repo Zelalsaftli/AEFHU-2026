@@ -20,11 +20,12 @@ interface ComparisonProps {
   concentrateFedAmount: number;
   forages: RationItem[];
   ingredients: FeedIngredient[];
+  milkPrice: number;
 }
 
 const Comparison: React.FC<ComparisonProps> = ({ 
     needs, supplied, totalDM, totalCost, milkProduction, groupSize, rationStructure,
-    concentrateMix, concentrateFedAmount, forages, ingredients
+    concentrateMix, concentrateFedAmount, forages, ingredients, milkPrice
 }) => {
   
   // Safe access to properties with defaults to prevent crashes if state is initializing
@@ -86,23 +87,35 @@ const Comparison: React.FC<ComparisonProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
                     <p className="text-slate-300 text-sm mb-1">تكلفة البقرة الواحدة</p>
-                    <p className="text-2xl font-bold text-yellow-400">{totalCost.toFixed(2)} <span className="text-sm">$/يوم</span></p>
+                    <p className="text-2xl font-bold text-yellow-400">{totalCost.toFixed(0)} <span className="text-sm">ل.س/يوم</span></p>
                 </div>
                 {groupSize > 1 && (
                     <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-emerald-500/30">
                         <p className="text-slate-300 text-sm mb-1">تكلفة المجموعة ({groupSize})</p>
-                        <p className="text-2xl font-bold text-emerald-400">{(totalCost * groupSize).toFixed(2)} <span className="text-sm">$/يوم</span></p>
+                        <p className="text-2xl font-bold text-emerald-400">{(totalCost * groupSize).toFixed(0)} <span className="text-sm">ل.س/يوم</span></p>
                     </div>
                 )}
                 <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
                     <p className="text-slate-300 text-sm mb-1">تكلفة 1 كغ حليب</p>
-                    <p className="text-2xl font-bold text-green-400">{costPerKgMilk.toFixed(2)} <span className="text-sm">$/كغ</span></p>
+                    <p className="text-2xl font-bold text-green-400">{costPerKgMilk.toFixed(0)} <span className="text-sm">ل.س</span></p>
                 </div>
-                 <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
                     <p className="text-slate-300 text-sm mb-1">كفاءة التحويل</p>
                     <p className="text-2xl font-bold text-blue-400">{(totalDM > 0 ? milkProduction / totalDM : 0).toFixed(2)}</p>
                 </div>
             </div>
+            {milkPrice > 0 && (
+                <div className="mt-6 p-4 bg-emerald-500/20 rounded-lg border border-emerald-500/50 flex justify-between items-center">
+                    <div>
+                        <p className="text-emerald-200 text-sm">عائد الحليب فوق تكلفة العلف (IOFC)</p>
+                        <p className="text-3xl font-black text-white ltr">{(milkProduction * milkPrice - totalCost).toLocaleString()} <span className="text-lg font-normal">ل.س / يوم</span></p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-emerald-200 text-sm">صافي ربح القطيع ({groupSize})</p>
+                        <p className="text-2xl font-bold text-emerald-400 ltr">{((milkProduction * milkPrice - totalCost) * groupSize).toLocaleString()} <span className="text-sm font-normal">ل.س</span></p>
+                    </div>
+                </div>
+            )}
         </div>
 
       <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200">
@@ -260,6 +273,17 @@ const Comparison: React.FC<ComparisonProps> = ({
                         <td className="px-6 py-4">
                             <span className={`px-2 py-1 rounded text-xs font-bold ${supplied?.adf < needs?.adf ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
                                 {supplied?.adf < needs?.adf ? 'منخفض' : 'جيد'}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-emerald-50/30 border-b hover:bg-emerald-50/50">
+                        <td className="px-6 py-4 font-medium text-emerald-900 pr-10">• الألياف الفعالة (peNDF)</td>
+                        <td className="px-6 py-4">Min {needs?.peNDF} g</td>
+                        <td className="px-6 py-4">{supplied?.peNDF} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.peNDF / (totalDM * 10)).toFixed(1)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${supplied?.peNDF < needs?.peNDF ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                                {supplied?.peNDF < needs?.peNDF ? 'خطر حماض' : 'آمن'}
                             </span>
                         </td>
                     </tr>

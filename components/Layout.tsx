@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Activity, BarChart3, Printer, RotateCcw, Home as HomeIcon } from 'lucide-react';
+import { Leaf, Activity, BarChart3, Printer, RotateCcw, Home as HomeIcon, Coins, Wind } from 'lucide-react';
 import { Page } from '../types';
 
 interface LayoutProps {
@@ -16,6 +16,8 @@ const Layout: React.FC<LayoutProps> = ({ activePage, setPage, onReset, onSave, c
     { id: Page.NEEDS, label: 'الاحتياجات', icon: Activity },
     { id: Page.FEED, label: 'تركيب العليقة', icon: Leaf },
     { id: Page.COMPARE, label: 'التحليل والمقارنة', icon: BarChart3 },
+    { id: Page.ECONOMICS, label: 'المؤشرات الاقتصادية (IOFC)', icon: Coins },
+    { id: Page.ENVIRONMENT, label: 'المؤشرات البيئية', icon: Wind },
     { id: Page.HEALTH, label: 'المستشار الفني (بيطري/زراعي)', icon: Activity },
   ];
 
@@ -97,11 +99,22 @@ const Layout: React.FC<LayoutProps> = ({ activePage, setPage, onReset, onSave, c
                 <div>
                     <p className="text-emerald-400 font-bold text-lg mb-2">إشراف</p>
                     <p className="text-white text-lg">د. ظلال الصافتلي & م. بتول المير سليمان</p>
+                    <div className="mt-2 text-sm opacity-80">
+                        <p>Dr. Zelal Alsaftli: zelal.alsaftli@hama-univ.edu.sy</p>
+                        <p>Whatsapp: +963 946 656 403</p>
+                    </div>
+                    <p className="mt-1 text-sm opacity-80">جامعة حماه - كلية الهندسة الزراعية</p>
                 </div>
             </div>
+            
+            <div className="max-w-2xl mx-auto mb-8 p-4 bg-slate-900/50 rounded-lg border border-slate-700 text-[10px] leading-relaxed opacity-60">
+                <p className="font-bold mb-1 text-slate-400 uppercase">إخلاء مسؤولية قانوني:</p>
+                هذا البرنامج هو أداة استشارية تعليمية مبنية على نماذج رياضية (NASEM 2021). النتائج هي تقديرات تقريبية لمساعدة المربي والمهندس الزراعي في اتخاذ القرار، ولا تغني عن الاستشارة الميدانية للطبيب البيطري أو خبير التغذية المتخصص. المطورون غير مسؤولين عن أي سوء استخدام أو نتائج غير متوقعة ناتجة عن إدخال بيانات غير دقيقة.
+            </div>
+
             <div className="text-sm border-t border-slate-700 pt-6 opacity-80">
                 <p className="text-base mb-2">قسم الإنتاج الحيواني - كلية الهندسة الزراعية - جامعة حماه</p>
-                <p className="font-mono">2026</p>
+                <p className="font-mono">2026 © جميع الحقوق محفوظة</p>
             </div>
         </div>
       </footer>
@@ -116,9 +129,11 @@ const Layout: React.FC<LayoutProps> = ({ activePage, setPage, onReset, onSave, c
             <div>
                 <p className="font-bold text-emerald-800">إشراف</p>
                 <p>د. ظلال الصافتلي & م. بتول المير سليمان</p>
+                <p className="text-[10px]">Contact (Dr. Zelal): zelal.alsaftli@hama-univ.edu.sy</p>
             </div>
         </div>
         <p className="text-sm font-bold">قسم الإنتاج الحيواني - كلية الهندسة الزراعية - جامعة حماه</p>
+        <p className="text-[10px] mt-4 opacity-50 italic">تم استخراج هذا التقرير بواسطة نظام إدارة علائق الأبقار الذكي - 2026</p>
       </div>
     </div>
   );

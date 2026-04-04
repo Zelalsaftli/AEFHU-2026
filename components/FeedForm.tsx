@@ -109,6 +109,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
         k: 0.5,
         cl: 0.1,
         s: 0.1,
+        peFactor: 0.5,
         starch: 0,
         sugar: 0,
         ndf: 10,
@@ -151,7 +152,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
            </div>
            <div className="bg-white px-3 py-1 rounded text-blue-800 text-sm font-bold shadow-sm flex items-center gap-1">
              <span>سعر 1 كغ خلطة:</span>
-             <span className="ltr text-base">{mixPricePerKg.toFixed(2)} $</span>
+             <span className="ltr text-base">{mixPricePerKg.toFixed(0)} ل.س</span>
            </div>
         </div>
         
@@ -168,7 +169,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
               <div key={feed.id} className="grid grid-cols-12 gap-4 items-center">
                  <label className="col-span-5 md:col-span-4 text-sm font-medium text-slate-700 flex flex-col">
                     <span>{feed.name}</span>
-                    <span className="text-xs text-slate-400 font-normal ltr text-right">{feed.defaultPrice} $/kg</span>
+                    <span className="text-xs text-slate-400 font-normal ltr text-right">{feed.defaultPrice} ل.س/كغ</span>
                  </label>
                  
                  <div className="col-span-5 md:col-span-4 relative">
@@ -274,6 +275,10 @@ const FeedForm: React.FC<FeedFormProps> = ({
                   <div className="text-xs font-bold ltr">{mixAnalysis.dcad.toFixed(0)}</div>
                   <div className="text-[8px] opacity-80">DCAD (mEq)</div>
               </div>
+              <div className="col-span-2 md:col-span-1 border-t border-blue-400 pt-1">
+                  <div className="text-xs font-bold ltr">{mixAnalysis.peNDF.toFixed(0)}g</div>
+                  <div className="text-[8px] opacity-80">peNDF</div>
+              </div>
           </div>
       </div>
 
@@ -294,7 +299,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
                     <span className="absolute left-4 top-4 font-bold text-slate-400">كغ</span>
                 </div>
                 <div className="text-blue-700 font-bold text-sm ltr">
-                    التكلفة: {(concentrateFedAmount * mixPricePerKg).toFixed(2)} $
+                    التكلفة: {(concentrateFedAmount * mixPricePerKg).toFixed(0)} ل.س
                 </div>
             </div>
          </div>
@@ -312,7 +317,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
                     <div key={feed.id} className="grid grid-cols-12 gap-4 items-center p-2 hover:bg-slate-50 rounded transition-colors">
                         <label className="col-span-5 md:col-span-4 text-sm font-medium text-slate-700 flex flex-col">
                             <span>{feed.name}</span>
-                            <span className="text-xs text-slate-400 font-normal ltr text-right">{feed.defaultPrice} $/kg</span>
+                            <span className="text-xs text-slate-400 font-normal ltr text-right">{feed.defaultPrice} ل.س/كغ</span>
                         </label>
                         
                         <div className="col-span-5 md:col-span-4 relative">
@@ -371,7 +376,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                           <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-1">السعر (لكل كغ) $</label>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">السعر (لكل كغ) ل.س</label>
                               <DecimalInput 
                                   value={editingIngredient.defaultPrice} 
                                   onChange={(val) => handleModalChange('defaultPrice', val)}
@@ -505,6 +510,14 @@ const FeedForm: React.FC<FeedFormProps> = ({
                                   value={editingIngredient.ndf} 
                                   onChange={(val) => handleModalChange('ndf', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-emerald-50/50 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">معامل الفعالية الفيزيائية (peFactor 0-1)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.peFactor} 
+                                  onChange={(val) => handleModalChange('peFactor', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-green-50/30 ltr"
                               />
                           </div>
                           <div>

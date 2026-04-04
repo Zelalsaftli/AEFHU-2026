@@ -12,6 +12,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   let cl = 0;
   let s = 0;
   let dcad = 0;
+  let peNDF = 0;
   let ca = 0;
   let p = 0;
 
@@ -187,6 +188,10 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     dcad = 300; // Lactating cows target positive DCAD
   }
 
+  // 9. peNDF Requirements (g)
+  // Target peNDF is ~20% of DMI
+  peNDF = predictedDmi * 1000 * 0.20;
+
   return {
     me: parseFloat(me.toFixed(2)),
     cp: Math.round(cp),
@@ -199,6 +204,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     cl: Math.round(predictedDmi * 2.5), 
     s: Math.round(predictedDmi * 2.0),
     dcad: dcad,
+    peNDF: Math.round(peNDF),
     ca: Math.round(ca),
     p: Math.round(p),
     ndf: Math.round(ndfReq),
@@ -216,6 +222,7 @@ export const calculateSupplied = (
   feedDatabase: FeedIngredient[] 
 ): Nutrients & { 
     totalDM: number;
+    totalAsFed: number;
     concentrateAnalysis: Nutrients;
     rationStructure: { concentrateDM: number; forageDM: number; concentratePercent: number; foragePercent: number }
 } => {
@@ -235,6 +242,7 @@ export const calculateSupplied = (
   let totalStarch = 0;
   let totalSugar = 0;
   let totalNDF = 0;
+  let totalPeNDF = 0;
   let totalADF = 0;
   let totalDM = 0;
 
@@ -244,7 +252,7 @@ export const calculateSupplied = (
   // 1. Calculate Concentrate Mix Analysis (per 1kg of mix)
   const totalParts = concentrateMix.reduce((acc, item) => acc + item.amount, 0);
   
-  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixADF = 0;
+  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixPeNDF = 0, mixADF = 0;
 
   if (totalParts > 0) {
     concentrateMix.forEach(item => {
@@ -254,6 +262,7 @@ export const calculateSupplied = (
             const dmFactor = feed.dm / 100;
             const cpInMix = (feed.cp * 10 * dmFactor) * ratio;
             const rupInMix = cpInMix * (feed.rup / 100);
+            const ndfInMix = (feed.ndf * 10 * dmFactor) * ratio;
             
             mixME += (feed.me * dmFactor) * ratio;
             mixCP += cpInMix;
@@ -270,7 +279,8 @@ export const calculateSupplied = (
             mixP += (feed.p * 10 * dmFactor) * ratio;
             mixStarch += (feed.starch * 10 * dmFactor) * ratio;
             mixSugar += (feed.sugar * 10 * dmFactor) * ratio;
-            mixNDF += (feed.ndf * 10 * dmFactor) * ratio;
+            mixNDF += ndfInMix;
+            mixPeNDF += ndfInMix * feed.peFactor;
             mixADF += (feed.adf * 10 * dmFactor) * ratio;
         }
     });
@@ -281,7 +291,8 @@ export const calculateSupplied = (
         lysine: mixLys, methionine: mixMet, 
         na: mixNa, k: mixK, cl: mixCl, s: mixS, 
         dcad: (mixNa / 0.023 + mixK / 0.039) - (mixCl / 0.0355 + mixS / 0.016),
-        ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, adf: mixADF 
+        ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, 
+        peNDF: mixPeNDF, adf: mixADF 
     };
 
   // 2. Add Concentrate Supplied to Total
@@ -300,6 +311,7 @@ export const calculateSupplied = (
   totalStarch += mixStarch * concentrateAmountFed;
   totalSugar += mixSugar * concentrateAmountFed;
   totalNDF += mixNDF * concentrateAmountFed;
+  totalPeNDF += mixPeNDF * concentrateAmountFed;
   totalADF += mixADF * concentrateAmountFed;
   
   const mixDMRatio = concentrateMix.reduce((acc, item) => {
@@ -338,6 +350,7 @@ export const calculateSupplied = (
           totalStarch += feed.starch * 10 * kgDM;
           totalSugar += feed.sugar * 10 * kgDM;
           totalNDF += feed.ndf * 10 * kgDM;
+          totalPeNDF += (feed.ndf * 10 * kgDM) * feed.peFactor;
           totalADF += feed.adf * 10 * kgDM;
 
           forageDM += kgDM;
@@ -364,6 +377,8 @@ export const calculateSupplied = (
 
   const totalDCAD = (na_g_kg / 0.023 + k_g_kg / 0.039) - (cl_g_kg / 0.0355 + s_g_kg / 0.016);
 
+  const totalAsFed = concentrateAmountFed + forages.reduce((acc, curr) => acc + curr.amount, 0);
+
   return {
     me: parseFloat(totalME.toFixed(2)),
     cp: Math.round(totalCP),
@@ -376,6 +391,7 @@ export const calculateSupplied = (
     cl: Math.round(totalCl),
     s: Math.round(totalS),
     dcad: Math.round(totalDCAD),
+    peNDF: Math.round(totalPeNDF),
     ca: Math.round(totalCa),
     p: Math.round(totalP),
     starch: Math.round(totalStarch),
@@ -383,6 +399,7 @@ export const calculateSupplied = (
     ndf: Math.round(totalNDF),
     adf: Math.round(totalADF),
     totalDM: parseFloat(totalDM.toFixed(2)),
+    totalAsFed: parseFloat(totalAsFed.toFixed(2)),
     concentrateAnalysis: {
         me: parseFloat(mixME.toFixed(2)),
         cp: Math.round(mixCP),
@@ -395,6 +412,7 @@ export const calculateSupplied = (
         cl: Math.round(mixCl),
         s: Math.round(mixS),
         dcad: Math.round((mixNa / 0.023 + mixK / 0.039) - (mixCl / 0.0355 + mixS / 0.016)),
+        peNDF: Math.round(mixPeNDF),
         ca: Math.round(mixCa),
         p: Math.round(mixP),
         starch: Math.round(mixStarch),

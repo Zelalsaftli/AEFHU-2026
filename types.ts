@@ -34,6 +34,7 @@ export interface Nutrients {
   starch: number; // % DM (displayed) or g (calculated)
   sugar: number; // % DM or g
   ndf: number; // Neutral Detergent Fiber (g)
+  peNDF: number; // Physically Effective NDF (g)
   adf: number; // Acid Detergent Fiber (g)
   predictedDmi?: number; // Feed 2026 Predicted Dry Matter Intake (kg)
 }
@@ -58,6 +59,7 @@ export interface FeedIngredient {
   starch: number; // % DM
   sugar: number; // % DM
   ndf: number; // % DM
+  peFactor: number; // Physical Effectiveness Factor (0-1)
   adf: number; // % DM
   defaultPrice: number; // Price per kg
 }
@@ -82,5 +84,7 @@ export enum Page {
   NEEDS = 'NEEDS',
   FEED = 'FEED',
   COMPARE = 'COMPARE',
-  HEALTH = 'HEALTH'
+  HEALTH = 'HEALTH',
+  ECONOMICS = 'ECONOMICS',
+  ENVIRONMENT = 'ENVIRONMENT'
 }

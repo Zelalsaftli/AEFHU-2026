@@ -5,6 +5,8 @@ import FeedForm from './components/FeedForm';
 import Comparison from './components/Comparison';
 import HealthAdvisor from './components/HealthAdvisor';
 import Home from './components/Home';
+import Economics from './components/Economics';
+import Environment from './components/Environment';
 import { CowParameters, Nutrients, RationItem, Page, FeedIngredient } from './types';
 import { calculateRequirements, calculateSupplied } from './services/calculator';
 import { FEED_DATABASE } from './constants';
@@ -37,7 +39,7 @@ const App: React.FC = () => {
   // Initialized with all properties to avoid runtime/type errors
   const [needs, setNeeds] = useState<Nutrients>({ 
     me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
-    na: 0, k: 0, cl: 0, s: 0, dcad: 0,
+    na: 0, k: 0, cl: 0, s: 0, dcad: 0, peNDF: 0,
     ca: 0, p: 0, 
     starch: 0, sugar: 0, ndf: 0, adf: 0,
     predictedDmi: 0
@@ -54,14 +56,15 @@ const App: React.FC = () => {
   // State: Supplied (Calculated)
   const [supplied, setSupplied] = useState<Nutrients>({ 
     me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
-    na: 0, k: 0, cl: 0, s: 0, dcad: 0,
+    na: 0, k: 0, cl: 0, s: 0, dcad: 0, peNDF: 0,
     ca: 0, p: 0,
     starch: 0, sugar: 0, ndf: 0, adf: 0
   });
   const [totalDM, setTotalDM] = useState<number>(0);
+  const [totalAsFed, setTotalAsFed] = useState<number>(0);
   const [mixAnalysis, setMixAnalysis] = useState<Nutrients>({ 
     me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
-    na: 0, k: 0, cl: 0, s: 0, dcad: 0,
+    na: 0, k: 0, cl: 0, s: 0, dcad: 0, peNDF: 0,
     ca: 0, p: 0,
     starch: 0, sugar: 0, ndf: 0, adf: 0
   });
@@ -71,6 +74,7 @@ const App: React.FC = () => {
 
   // State: Cost
   const [totalCost, setTotalCost] = useState<number>(0);
+  const [milkPrice, setMilkPrice] = useState<number>(2500); // Default milk price (L.S)
 
   const handleReset = () => {
     if (window.confirm("هل أنت متأكد من رغبتك في بدء جلسة جديدة؟ سيتم مسح جميع المدخلات.")) {
@@ -115,6 +119,7 @@ const App: React.FC = () => {
     const result = calculateSupplied(concentrateMix, concentrateFedAmount, forages, ingredients);
     setSupplied(result);
     setTotalDM(result.totalDM);
+    setTotalAsFed(result.totalAsFed);
     setMixAnalysis(result.concentrateAnalysis);
     setRationStructure(result.rationStructure);
 
@@ -188,6 +193,7 @@ const App: React.FC = () => {
             concentrateFedAmount={concentrateFedAmount}
             forages={forages}
             ingredients={ingredients}
+            milkPrice={milkPrice}
         />
       )}
 
@@ -198,6 +204,29 @@ const App: React.FC = () => {
             supplied={supplied}
             concentrateAmount={concentrateFedAmount}
             forageAmount={totalForageAmount}
+        />
+      )}
+
+      {activePage === Page.ECONOMICS && (
+        <Economics 
+            milkProduction={cowParams.milkProduction}
+            milkPrice={milkPrice}
+            setMilkPrice={setMilkPrice}
+            totalCost={totalCost}
+            concentrateMix={concentrateMix}
+            concentrateFedAmount={concentrateFedAmount}
+            forages={forages}
+            ingredients={ingredients}
+            groupSize={cowParams.groupSize}
+        />
+      )}
+
+      {activePage === Page.ENVIRONMENT && (
+        <Environment 
+            params={cowParams}
+            supplied={supplied}
+            totalDM={totalDM}
+            totalAsFed={totalAsFed}
         />
       )}
     </Layout>
