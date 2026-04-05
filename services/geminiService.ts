@@ -5,17 +5,19 @@ export const predictMetabolicHealth = async (
   cowParams: CowParameters,
   needs: Nutrients,
   supplied: Nutrients,
-  forageToConcRatio: number
+  forageToConcRatio: number,
+  modelName: string = "gemini-3-flash-preview",
+  userApiKey?: string
 ): Promise<string> => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  const apiKey = userApiKey || process.env.GEMINI_API_KEY || process.env.API_KEY;
   
-  if (!apiKey || apiKey === "undefined") {
-    console.error("خطأ: مفتاح API غير موجود. يرجى إضافته في إعدادات البيئة (Environment Variables).");
-    return "عذراً، مفتاح الـ API الخاص بالذكاء الاصطناعي غير مهيأ. يرجى التأكد من إضافته في إعدادات Vercel.";
+  if (!apiKey || apiKey === "undefined" || apiKey.trim() === "") {
+    console.error("خطأ: مفتاح API غير موجود.");
+    return "عذراً، مفتاح الـ API غير موجود. يرجى إدخال مفتاحك الخاص أو التأكد من إعدادات النظام.";
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-3-flash-preview";
+  const model = modelName;
 
   const energyBalance = supplied.me - needs.me;
   const cpBalance = supplied.cp - needs.cp;
