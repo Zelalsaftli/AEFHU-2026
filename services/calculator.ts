@@ -144,10 +144,23 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   methionine = (milkMetNP + maintMetNP) / 0.73;
 
   // --- Mineral Requirements (NASEM 2021) ---
-  // Calcium: Maint (0.9g/kg DMI) + Milk (1.22g/kg) + Growth
-  ca = (0.9 * estimatedDMI) + (milkKg * 1.22) + (growthRateToUse * 20);
-  // Phosphorus: Maint (1.0g/kg DMI) + Milk (0.9g/kg) + Growth
-  p = (1.0 * estimatedDMI) + (milkKg * 0.9) + (growthRateToUse * 10);
+  // 1. Calcium (Ca)
+  // Maintenance (0.9g/kg DMI) + Milk (1.22g/kg) + Growth (16g/kg gain)
+  let caReq = (0.9 * estimatedDMI) + (milkKg * 1.22) + (growthRateToUse * 16);
+  // Pregnancy Ca (Significant in last trimester)
+  if (params.pregnancyMonth === 7) caReq += 2.0;
+  if (params.pregnancyMonth === 8) caReq += 5.0;
+  if (params.pregnancyMonth === 9) caReq += 10.0;
+  ca = caReq;
+
+  // 2. Phosphorus (P)
+  // Maintenance (1.0g/kg DMI) + Milk (0.9g/kg) + Growth (9g/kg gain)
+  let pReq = (1.0 * estimatedDMI) + (milkKg * 0.9) + (growthRateToUse * 9);
+  // Pregnancy P
+  if (params.pregnancyMonth === 7) pReq += 1.0;
+  if (params.pregnancyMonth === 8) pReq += 2.5;
+  if (params.pregnancyMonth === 9) pReq += 5.0;
+  p = pReq;
 
   // Guidelines (approximate):
   const ndfReq = estimatedDMI * 1000 * 0.30; // in grams

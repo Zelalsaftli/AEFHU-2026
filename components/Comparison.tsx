@@ -1,7 +1,10 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+    Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+} from 'recharts';
 import { Nutrients, RationItem, FeedIngredient } from '../types';
-import { Coins, TrendingUp, Printer, XCircle, Scale, PieChart } from 'lucide-react';
+import { Coins, TrendingUp, Printer, XCircle, Scale, PieChart, Target } from 'lucide-react';
 
 interface ComparisonProps {
   needs: Nutrients;
@@ -29,11 +32,21 @@ const Comparison: React.FC<ComparisonProps> = ({
 }) => {
   
   // Safe access to properties with defaults to prevent crashes if state is initializing
-  const data = [
+  const barData = [
     { name: 'الطاقة (Mcal)', required: needs?.me || 0, supplied: supplied?.me || 0, unit: 'Mcal' },
     { name: 'البروتين (g/10)', required: Math.round((needs?.cp || 0) / 10), supplied: Math.round((supplied?.cp || 0) / 10), unit: 'x10 g' },
     { name: 'Ca (g)', required: needs?.ca || 0, supplied: supplied?.ca || 0, unit: 'g' },
     { name: 'NDF (g/10)', required: Math.round((needs?.ndf || 0)/10), supplied: Math.round((supplied?.ndf || 0)/10), unit: 'x10 g' },
+  ];
+
+  // Radar Data: Normalized to 100% of requirement
+  const radarData = [
+    { subject: 'الطاقة (ME)', A: needs.me > 0 ? (supplied.me / needs.me) * 100 : 0, fullMark: 150 },
+    { subject: 'البروتين (CP)', A: needs.cp > 0 ? (supplied.cp / needs.cp) * 100 : 0, fullMark: 150 },
+    { subject: 'الألياف (NDF)', A: needs.ndf > 0 ? (supplied.ndf / needs.ndf) * 100 : 0, fullMark: 150 },
+    { subject: 'الكالسيوم (Ca)', A: needs.ca > 0 ? (supplied.ca / needs.ca) * 100 : 0, fullMark: 150 },
+    { subject: 'الفوسفور (P)', A: needs.p > 0 ? (supplied.p / needs.p) * 100 : 0, fullMark: 150 },
+    { subject: 'اللايسين (Lys)', A: needs.lysine > 0 ? (supplied.lysine / needs.lysine) * 100 : 0, fullMark: 150 },
   ];
 
   const getStatusColor = (req: number, sup: number, isMaxLimit: boolean = false) => {
@@ -346,21 +359,55 @@ const Comparison: React.FC<ComparisonProps> = ({
         </div>
 
         {/* Chart View */}
-        <div className="h-80 w-full mt-8 ltr" dir="ltr">
-             <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="required" fill="#94a3b8" name="المطلوب/الحد الأدنى" />
-                <Bar dataKey="supplied" fill="#10b981" name="المقدم" />
-                </BarChart>
-            </ResponsiveContainer>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
+            {/* Radar Chart: Overall Balance */}
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                <h3 className="text-center font-bold text-slate-700 mb-4 flex items-center justify-center gap-2">
+                    <Target className="w-4 h-4 text-indigo-600" />
+                    مخطط توازن العناصر (نسبة التغطية %)
+                </h3>
+                <div className="h-72 w-full ltr" dir="ltr">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                            <PolarGrid />
+                            <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10 }} />
+                            <PolarRadiusAxis angle={30} domain={[0, 150]} tick={{ fontSize: 10 }} />
+                            <Radar
+                                name="التغطية"
+                                dataKey="A"
+                                stroke="#4f46e5"
+                                fill="#4f46e5"
+                                fillOpacity={0.5}
+                            />
+                            <Tooltip />
+                        </RadarChart>
+                    </ResponsiveContainer>
+                </div>
+                <p className="text-[10px] text-center text-slate-400 mt-2">
+                    * الخط الداخلي يمثل 100% من الاحتياجات المطلوبة.
+                </p>
+            </div>
+
+            {/* Bar Chart: Absolute Values */}
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                <h3 className="text-center font-bold text-slate-700 mb-4">مقارنة القيم المطلقة</h3>
+                <div className="h-72 w-full ltr" dir="ltr">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                            data={barData}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                            <YAxis tick={{ fontSize: 10 }} />
+                            <Tooltip />
+                            <Legend wrapperStyle={{ fontSize: '10px' }} />
+                            <Bar dataKey="required" fill="#94a3b8" name="المطلوب" />
+                            <Bar dataKey="supplied" fill="#10b981" name="المقدم" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
         </div>
 
         <div className="mt-6 bg-slate-50 p-4 rounded text-center text-slate-600">

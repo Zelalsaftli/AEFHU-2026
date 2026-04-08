@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CowParameters, Nutrients } from '../types';
 import { predictMetabolicHealth } from '../services/geminiService';
-import { Brain, AlertCircle, RefreshCw, Key, ShieldCheck, Lock } from 'lucide-react';
+import { Brain, AlertCircle, RefreshCw, Key, ShieldCheck, Lock, Lightbulb, Info } from 'lucide-react';
 
 interface HealthAdvisorProps {
   params: CowParameters;
@@ -20,6 +20,10 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
   const [personalKey, setPersonalKey] = useState<string>(localStorage.getItem('personal_gemini_key') || '');
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [showKeyInput, setShowKeyInput] = useState(false);
+
+  // Check for RUP deficiency
+  const rupDeficiency = supplied.rup < needs.rup * 0.9;
+  const energyDeficiency = supplied.me < needs.me * 0.95;
 
   useEffect(() => {
     const today = new Date().toDateString();
@@ -156,6 +160,58 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
             </button>
         </div>
       </div>
+
+      {/* Dynamic Technical Tips Section */}
+      {(rupDeficiency || energyDeficiency) && (
+        <div className="mb-8 space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 px-2">
+                <Lightbulb className="text-yellow-500 w-5 h-5" />
+                توصيات فنية عاجلة (بناءً على الأرقام الحالية)
+            </h3>
+            
+            {rupDeficiency && (
+                <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-xl shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="text-orange-600 w-6 h-6 mt-1 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-orange-900 mb-1">نقص في البروتين العابر (RUP)</h4>
+                            <div className="text-sm text-orange-800 leading-relaxed">
+                                العليقة الحالية تفتقر للبروتين الذي يصل للأمعاء مباشرة. هذا سيؤثر على إنتاج الحليب والخصوبة.
+                                <br />
+                                <strong className="block mt-2">مقترحات للحل:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>استخدم مصادر محمية حرارياً (مثل بذور الصويا المحمصة أو جلوتين الذرة).</li>
+                                    <li>قلل من استخدام اليوريا إذا كانت موجودة لأنها بروتين متفكك بالكامل.</li>
+                                    <li>ابحث عن كسبة صويا معالجة (SoyPass) لرفع كفاءة العبور.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {energyDeficiency && (
+                <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-xl shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <Info className="text-blue-600 w-6 h-6 mt-1 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-blue-900 mb-1">نقص في الطاقة الاستقلابية (ME)</h4>
+                            <div className="text-sm text-blue-800 leading-relaxed">
+                                البقرة لا تحصل على طاقة كافية، مما قد يؤدي لفقدان الوزن (BCS) ومخاطر الكيتوز.
+                                <br />
+                                <strong className="block mt-2">مقترحات للحل:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>أضف المولاس (دبس السكر) لتحسين الشهية والطاقة السريعة.</li>
+                                    <li>ارفع نسبة الذرة الصفراء في الخلطة المركزة.</li>
+                                    <li>تأكد من جودة السيلاج أو الدريس المقدم.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+      )}
 
       {prediction && (
         <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden animate-fade-in">
