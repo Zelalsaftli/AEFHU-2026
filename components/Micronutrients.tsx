@@ -1,5 +1,5 @@
 import React from 'react';
-import { Beaker, ShieldCheck, Zap, Info } from 'lucide-react';
+import { Beaker, ShieldCheck, Zap, Info, Activity } from 'lucide-react';
 import { Nutrients, CowParameters } from '../types';
 
 interface MicronutrientsProps {
@@ -9,6 +9,19 @@ interface MicronutrientsProps {
 }
 
 const Micronutrients: React.FC<MicronutrientsProps> = ({ params, needs, supplied }) => {
+  const macroMinerals = [
+    { id: 'ca', name: 'الكالسيوم (Calcium)', req: needs.ca, sup: supplied.ca || 0, unit: 'غ', icon: Activity, desc: 'أساسي للعظام وإنتاج الحليب.' },
+    { id: 'p', name: 'الفوسفور (Phosphorus)', req: needs.p, sup: supplied.p || 0, unit: 'غ', icon: Activity, desc: 'مهم للطاقة والخصوبة.' },
+    { id: 'mg', name: 'المغنيسيوم (Magnesium)', req: needs.mg, sup: supplied.mg || 0, unit: 'غ', icon: Activity, desc: 'ضروري للأعصاب والعضلات وامتصاص الكالسيوم.' },
+  ];
+
+  const electrolytes = [
+    { id: 'na', name: 'الصوديوم (Sodium)', req: needs.na, sup: supplied.na || 0, unit: 'غ', icon: Zap, desc: 'ينظم السوائل وتوازن الأحماض والقواعد.' },
+    { id: 'k', name: 'البوتاسيوم (Potassium)', req: needs.k, sup: supplied.k || 0, unit: 'غ', icon: Zap, desc: 'حيوي لوظائف القلب والعضلات والأعصاب.' },
+    { id: 'cl', name: 'الكلور (Chloride)', req: needs.cl, sup: supplied.cl || 0, unit: 'غ', icon: Zap, desc: 'مهم للهضم وتوازن الضغط الاسموزي.' },
+    { id: 's', name: 'الكبريت (Sulfur)', req: needs.s, sup: supplied.s || 0, unit: 'غ', icon: Zap, desc: 'ضروري لتصنيع الأحماض الأمينية الكبريتية.' },
+  ];
+
   const traceMinerals = [
     { id: 'cu', name: 'النحاس (Copper)', req: needs.cu, sup: supplied.cu || 0, unit: 'ملغ', icon: Beaker, desc: 'ضروري للمناعة والخصوبة.' },
     { id: 'zn', name: 'الزنك (Zinc)', req: needs.zn, sup: supplied.zn || 0, unit: 'ملغ', icon: ShieldCheck, desc: 'مهم لصحة الحوافر والجلد والمناعة.' },
@@ -53,6 +66,102 @@ const Micronutrients: React.FC<MicronutrientsProps> = ({ params, needs, supplied
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Macro Minerals Section */}
+        <div className="lg:col-span-3 space-y-6">
+          <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 px-2">
+            <Activity className="text-emerald-600 w-5 h-5" />
+            توازن المعادن الكبرى (Macro Minerals)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {macroMinerals.map((mineral) => {
+              const percent = getPercent(mineral.sup, mineral.req);
+              return (
+                <div key={mineral.id} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-300 transition-colors group">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-emerald-100 transition-colors">
+                        <mineral.icon className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <span className="font-bold text-slate-700">{mineral.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-baseline gap-1 justify-end">
+                        <span className="text-xl font-black text-emerald-700 ltr">{mineral.sup}</span>
+                        <span className="text-[10px] text-slate-400">/ {mineral.req}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 block">{mineral.unit}/يوم</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3">
+                      <div className="flex justify-between text-[10px] mb-1">
+                          <span className="text-slate-500">نسبة التغطية</span>
+                          <span className={`font-bold ${percent < 90 ? 'text-red-600' : percent > 120 ? 'text-yellow-600' : 'text-green-600'}`}>{percent}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all duration-1000 ${getBarColor(percent)}`}
+                            style={{ width: `${percent}%` }}
+                          />
+                      </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-relaxed opacity-80">
+                    {mineral.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Electrolytes Section */}
+        <div className="lg:col-span-3 space-y-6">
+          <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 px-2">
+            <Zap className="text-yellow-500 w-5 h-5" />
+            توازن الإلكتروليتات (Electrolytes)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {electrolytes.map((elec) => {
+              const percent = getPercent(elec.sup, elec.req);
+              return (
+                <div key={elec.id} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:border-yellow-300 transition-colors group">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-yellow-50 rounded-lg group-hover:bg-yellow-100 transition-colors">
+                        <elec.icon className="w-5 h-5 text-yellow-600" />
+                      </div>
+                      <span className="font-bold text-slate-700">{elec.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-baseline gap-1 justify-end">
+                        <span className="text-xl font-black text-yellow-700 ltr">{elec.sup}</span>
+                        <span className="text-[10px] text-slate-400">/ {elec.req}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 block">{elec.unit}/يوم</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3">
+                      <div className="flex justify-between text-[10px] mb-1">
+                          <span className="text-slate-500">نسبة التغطية</span>
+                          <span className={`font-bold ${percent < 90 ? 'text-red-600' : percent > 120 ? 'text-yellow-600' : 'text-green-600'}`}>{percent}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all duration-1000 ${getBarColor(percent)}`}
+                            style={{ width: `${percent}%` }}
+                          />
+                      </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-relaxed opacity-80">
+                    {elec.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Trace Minerals Section */}
         <div className="lg:col-span-2 space-y-6">
           <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 px-2">

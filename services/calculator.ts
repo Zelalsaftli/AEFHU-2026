@@ -15,6 +15,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   let peNDF = 0;
   let ca = 0;
   let p = 0;
+  let mg = 0;
 
   const w075 = Math.pow(params.weight, 0.75);
 
@@ -210,6 +211,66 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   // Dietary P = Absorbed / AC (Average AC for P is ~0.70 in NASEM 2021)
   p = totalAbsorbedP / 0.70;
 
+  // 3. Magnesium (Mg) - NASEM 2021
+  // Absorbed Maintenance (Eq 7-9): 0.3 * DMI + 0.0007 * BW
+  const absorbedMgMaint = (0.3 * estimatedDMI) + (0.0007 * params.weight);
+  // Absorbed Growth (Eq 7-10): 0.45 * ADG
+  const absorbedMgGrowth = 0.45 * growthRateToUse;
+  // Absorbed Gestation (Eq 7-11): 0.3 * (BW / 715) for > 190 days
+  let absorbedMgPreg = 0;
+  if (t > 190) {
+      absorbedMgPreg = 0.3 * (params.weight / 715);
+  }
+  // Absorbed Lactation (Eq 7-12): 0.11 * Milk
+  const absorbedMgMilk = 0.11 * milkKg;
+
+  const totalAbsorbedMg = absorbedMgMaint + absorbedMgGrowth + absorbedMgPreg + absorbedMgMilk;
+  mg = totalAbsorbedMg / 0.31;
+
+  // 4. Sodium (Na) - NASEM 2021
+  // Maintenance (Eq 7-14): 1.45 * DMI
+  const absorbedNaMaint = 1.45 * estimatedDMI;
+  // Growth (Eq 7-15): 1.4 * ADG
+  const absorbedNaGrowth = 1.4 * growthRateToUse;
+  // Gestation (Eq 7-16): 1.4 * (BW / 715)
+  let absorbedNaPreg = 0;
+  if (t > 190) absorbedNaPreg = 1.4 * (params.weight / 715);
+  // Lactation (Eq 7-17): 0.4 * Milk
+  const absorbedNaMilk = 0.4 * milkKg;
+  const totalAbsorbedNa = absorbedNaMaint + absorbedNaGrowth + absorbedNaPreg + absorbedNaMilk;
+  na = totalAbsorbedNa / 1.0; // AC = 1.0
+
+  // 5. Chloride (Cl) - NASEM 2021
+  // Maintenance (Eq 7-18): 1.11 * DMI
+  const absorbedClMaint = 1.11 * estimatedDMI;
+  // Growth (Eq 7-19): 1.0 * ADG
+  const absorbedClGrowth = 1.0 * growthRateToUse;
+  // Gestation (Eq 7-20): 1.0 * (BW / 715)
+  let absorbedClPreg = 0;
+  if (t > 190) absorbedClPreg = 1.0 * (params.weight / 715);
+  // Lactation (Eq 7-21): 1.0 * Milk
+  const absorbedClMilk = 1.0 * milkKg;
+  const totalAbsorbedCl = absorbedClMaint + absorbedClGrowth + absorbedClPreg + absorbedClMilk;
+  cl = totalAbsorbedCl / 0.92; // AC = 0.92
+
+  // 6. Potassium (K) - NASEM 2021
+  // Maintenance (Eq 7-22a/b)
+  const kMaintFactor = params.lactationStage === 'dry' ? 0.07 : 0.2;
+  const absorbedKMaint = (2.5 * estimatedDMI) + (kMaintFactor * params.weight);
+  // Growth (Eq 7-23): 2.5 * ADG
+  const absorbedKGrowth = 2.5 * growthRateToUse;
+  // Gestation (Eq 7-24): 1.03 * (BW / 715)
+  let absorbedKPreg = 0;
+  if (t > 190) absorbedKPreg = 1.03 * (params.weight / 715);
+  // Lactation (Eq 7-25): 1.5 * Milk
+  const absorbedKMilk = 1.5 * milkKg;
+  const totalAbsorbedK = absorbedKMaint + absorbedKGrowth + absorbedKPreg + absorbedKMilk;
+  k = totalAbsorbedK / 1.0; // AC = 1.0
+
+  // 7. Sulfur (S) - NASEM 2021
+  // Total S (Eq 7-26): DMI * 2.0 (Dietary)
+  s = estimatedDMI * 2.0;
+
   // Guidelines (approximate):
   const ndfReq = estimatedDMI * 1000 * 0.30; // in grams
   const adfReq = estimatedDMI * 1000 * 0.21; // in grams
@@ -263,14 +324,15 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     rup: Math.round(rup),
     lysine: Math.round(lysine),
     methionine: Math.round(methionine),
-    na: Math.round(estimatedDMI * 2.5), 
-    k: Math.round(estimatedDMI * 10), 
-    cl: Math.round(estimatedDMI * 2.5), 
-    s: Math.round(estimatedDMI * 2.0),
+    na: Math.round(na), 
+    k: Math.round(k), 
+    cl: Math.round(cl), 
+    s: Math.round(s),
     dcad: dcad,
     peNDF: Math.round(peNDF),
     ca: Math.round(ca),
     p: Math.round(p),
+    mg: Math.round(mg),
     ndf: Math.round(ndfReq),
     uNDF240: Math.round(undfLimit),
     adf: Math.round(adfReq),
@@ -316,6 +378,8 @@ export const calculateSupplied = (
   let totalS = 0;
   let totalCa = 0;
   let totalP = 0;
+  let totalMg = 0;
+  let totalMgFromMgO = 0;
   let totalStarch = 0;
   let totalSugar = 0;
   let totalNDF = 0;
@@ -333,7 +397,7 @@ export const calculateSupplied = (
   // 1. Calculate Concentrate Mix Analysis (per 1kg of mix)
   const totalParts = concentrateMix.reduce((acc, item) => acc + item.amount, 0);
   
-  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixuNDF240 = 0, mixPeNDF = 0, mixADF = 0;
+  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixMg = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixuNDF240 = 0, mixPeNDF = 0, mixADF = 0;
   let mixCo = 0, mixCu = 0, mixI = 0, mixFe = 0, mixMn = 0, mixSe = 0, mixZn = 0, mixVitA = 0, mixVitD = 0, mixVitE = 0;
 
   if (totalParts > 0) {
@@ -359,6 +423,7 @@ export const calculateSupplied = (
             mixS += (feed.s * 10 * dmFactor) * ratio;
             mixCa += (feed.ca * 10 * dmFactor) * ratio;
             mixP += (feed.p * 10 * dmFactor) * ratio;
+            mixMg += (feed.mg * 10 * dmFactor) * ratio;
             mixStarch += (feed.starch * 10 * dmFactor) * ratio;
             mixSugar += (feed.sugar * 10 * dmFactor) * ratio;
             mixNDF += ndfInMix;
@@ -388,7 +453,7 @@ export const calculateSupplied = (
         lysine: mixLys, methionine: mixMet, 
         na: mixNa, k: mixK, cl: mixCl, s: mixS, 
         dcad: (mixNa / 0.023 + mixK / 0.039) - (mixCl / 0.0355 + mixS / 0.016),
-        ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, 
+        ca: mixCa, p: mixP, mg: mixMg, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, 
         peNDF: mixPeNDF, adf: mixADF,
         co: mixCo, cu: mixCu, i: mixI, fe: mixFe, mn: mixMn, se: mixSe, zn: mixZn,
         vitA: mixVitA, vitD: mixVitD, vitE: mixVitE
@@ -407,6 +472,19 @@ export const calculateSupplied = (
   totalS += mixS * concentrateAmountFed;
   totalCa += mixCa * concentrateAmountFed;
   totalP += mixP * concentrateAmountFed;
+  totalMg += mixMg * concentrateAmountFed;
+  
+  // Track Mg from MgO specifically for AC calculation
+  const mgoInMix = concentrateMix.find(item => item.ingredientId === 'c_mgo');
+  if (mgoInMix && totalParts > 0) {
+      const feed = feedDatabase.find(f => f.id === 'c_mgo');
+      if (feed) {
+          const ratio = mgoInMix.amount / totalParts;
+          const dmFactor = feed.dm / 100;
+          totalMgFromMgO += (feed.mg * 10 * dmFactor) * ratio * concentrateAmountFed;
+      }
+  }
+
   totalStarch += mixStarch * concentrateAmountFed;
   totalSugar += mixSugar * concentrateAmountFed;
   totalNDF += mixNDF * concentrateAmountFed;
@@ -456,6 +534,7 @@ export const calculateSupplied = (
           totalS += feed.s * 10 * kgDM;
           totalCa += feed.ca * 10 * kgDM;
           totalP += feed.p * 10 * kgDM;
+          totalMg += feed.mg * 10 * kgDM;
           
           // Add new nutrients
           totalStarch += feed.starch * 10 * kgDM;
@@ -500,6 +579,27 @@ export const calculateSupplied = (
 
   const totalDCAD = (na_g_kg / 0.023 + k_g_kg / 0.039) - (cl_g_kg / 0.0355 + s_g_kg / 0.016);
 
+  // 6. Calculate True Magnesium Absorption (NASEM 2021 Eq 7-13)
+  // True Mg absorption = (44.1 - 5.42 * ln(K) - 0.08 * Supplemental) / 100
+  // K is expressed as g/kg total diet DM
+  // Supplemental = percentage of dietary Mg provided by MgO
+  const k_g_kg_dm = totalDM > 0 ? (totalK / totalDM) : 12; // Default to 12 if no intake
+  const supplementalMgPct = totalMg > 0 ? (totalMgFromMgO / totalMg) * 100 : 0;
+  
+  // ln(K) calculation, ensuring K > 1 to avoid negative/zero issues
+  const lnK = Math.log(Math.max(1, k_g_kg_dm));
+  const trueMgAC = (44.1 - 5.42 * lnK - 0.08 * supplementalMgPct) / 100;
+  
+  // The "Supplied" value we return for Mg should be the "Absorbed Mg" to compare with the "Absorbed Requirement"
+  // However, the app's UI usually compares Dietary Intake vs Dietary Requirement.
+  // To keep it consistent with Ca and P, we'll return the Dietary Intake (totalMg) 
+  // but the "Needs" calculation should ideally be adjusted by this specific AC.
+  // For simplicity in this UI, we'll return totalMg and let the comparison handle the AC if needed,
+  // OR we return (totalMg * trueMgAC) as the "supplied" absorbed amount.
+  // Let's stick to returning totalMg (Dietary) and we'll adjust the "Needs" in App.tsx or here.
+  // Actually, let's return totalMg as dietary, and maybe add absorbedMg as a separate field?
+  // No, let's follow the Ca/P pattern: supplied = total intake.
+
   const totalAsFed = concentrateAmountFed + forages.reduce((acc, curr) => acc + curr.amount, 0);
 
   // --- Environmental Impact Calculations (NASEM 2021) ---
@@ -538,6 +638,7 @@ export const calculateSupplied = (
     peNDF: Math.round(totalPeNDF),
     ca: Math.round(totalCa),
     p: Math.round(totalP),
+    mg: Math.round(totalMg),
     starch: Math.round(totalStarch),
     sugar: Math.round(totalSugar),
     ndf: Math.round(totalNDF),
@@ -574,6 +675,7 @@ export const calculateSupplied = (
         peNDF: Math.round(mixPeNDF),
         ca: Math.round(mixCa),
         p: Math.round(mixP),
+        mg: Math.round(mixMg),
         starch: Math.round(mixStarch),
         sugar: Math.round(mixSugar),
         ndf: Math.round(mixNDF),

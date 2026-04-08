@@ -36,6 +36,11 @@ const Comparison: React.FC<ComparisonProps> = ({
     { name: 'الطاقة (Mcal)', required: needs?.me || 0, supplied: supplied?.me || 0, unit: 'Mcal' },
     { name: 'البروتين (g/10)', required: Math.round((needs?.cp || 0) / 10), supplied: Math.round((supplied?.cp || 0) / 10), unit: 'x10 g' },
     { name: 'Ca (g)', required: needs?.ca || 0, supplied: supplied?.ca || 0, unit: 'g' },
+    { name: 'Mg (g)', required: needs?.mg || 0, supplied: supplied?.mg || 0, unit: 'g' },
+    { name: 'Na (g)', required: needs?.na || 0, supplied: supplied?.na || 0, unit: 'g' },
+    { name: 'K (g/10)', required: Math.round((needs?.k || 0) / 10), supplied: Math.round((supplied?.k || 0) / 10), unit: 'x10 g' },
+    { name: 'Cl (g)', required: needs?.cl || 0, supplied: supplied?.cl || 0, unit: 'g' },
+    { name: 'S (g)', required: needs?.s || 0, supplied: supplied?.s || 0, unit: 'g' },
     { name: 'NDF (g/10)', required: Math.round((needs?.ndf || 0)/10), supplied: Math.round((supplied?.ndf || 0)/10), unit: 'x10 g' },
     { name: 'uNDF240 (g/10)', required: Math.round((needs?.uNDF240 || 0)/10), supplied: Math.round((supplied?.uNDF240 || 0)/10), unit: 'x10 g' },
   ];
@@ -47,6 +52,7 @@ const Comparison: React.FC<ComparisonProps> = ({
     { subject: 'الألياف (NDF)', A: needs.ndf > 0 ? (supplied.ndf / needs.ndf) * 100 : 0, fullMark: 150 },
     { subject: 'سعة الكرش (uNDF)', A: needs.uNDF240 > 0 ? (supplied.uNDF240 / needs.uNDF240) * 100 : 0, fullMark: 150 },
     { subject: 'الكالسيوم (Ca)', A: needs.ca > 0 ? (supplied.ca / needs.ca) * 100 : 0, fullMark: 150 },
+    { subject: 'المغنيسيوم (Mg)', A: needs.mg > 0 ? (supplied.mg / needs.mg) * 100 : 0, fullMark: 150 },
     { subject: 'الفوسفور (P)', A: needs.p > 0 ? (supplied.p / needs.p) * 100 : 0, fullMark: 150 },
     { subject: 'اللايسين (Lys)', A: needs.lysine > 0 ? (supplied.lysine / needs.lysine) * 100 : 0, fullMark: 150 },
   ];
@@ -353,6 +359,61 @@ const Comparison: React.FC<ComparisonProps> = ({
                         <td className="px-6 py-4">
                             <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.p, supplied?.p)}`}>
                                 {getStatusText(needs?.p, supplied?.p)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-slate-50/50 border-b hover:bg-slate-50">
+                        <td className="px-6 py-4 font-medium text-slate-900">المغنيسيوم (Mg)</td>
+                        <td className="px-6 py-4">{needs?.mg} g</td>
+                        <td className="px-6 py-4">{supplied?.mg} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.mg / (totalDM * 10)).toFixed(2)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.mg, supplied?.mg)}`}>
+                                {getStatusText(needs?.mg, supplied?.mg)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-white border-b hover:bg-slate-50">
+                        <td className="px-6 py-4 font-medium text-slate-900">الصوديوم (Na)</td>
+                        <td className="px-6 py-4">{needs?.na} g</td>
+                        <td className="px-6 py-4">{supplied?.na} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.na / (totalDM * 10)).toFixed(2)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.na, supplied?.na)}`}>
+                                {getStatusText(needs?.na, supplied?.na)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-white border-b hover:bg-slate-50">
+                        <td className="px-6 py-4 font-medium text-slate-900">البوتاسيوم (K)</td>
+                        <td className="px-6 py-4">{needs?.k} g</td>
+                        <td className="px-6 py-4">{supplied?.k} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.k / (totalDM * 10)).toFixed(2)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.k, supplied?.k)}`}>
+                                {getStatusText(needs?.k, supplied?.k)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-white border-b hover:bg-slate-50">
+                        <td className="px-6 py-4 font-medium text-slate-900">الكلور (Cl)</td>
+                        <td className="px-6 py-4">{needs?.cl} g</td>
+                        <td className="px-6 py-4">{supplied?.cl} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.cl / (totalDM * 10)).toFixed(2)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.cl, supplied?.cl)}`}>
+                                {getStatusText(needs?.cl, supplied?.cl)}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-white border-b hover:bg-slate-50">
+                        <td className="px-6 py-4 font-medium text-slate-900">الكبريت (S)</td>
+                        <td className="px-6 py-4">{needs?.s} g</td>
+                        <td className="px-6 py-4">{supplied?.s} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.s / (totalDM * 10)).toFixed(2)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(needs?.s, supplied?.s)}`}>
+                                {getStatusText(needs?.s, supplied?.s)}
                             </span>
                         </td>
                     </tr>

@@ -27,6 +27,7 @@ export interface Nutrients {
   cp: number; // Crude Protein (g)
   ca: number; // Calcium (g)
   p: number; // Phosphorus (g)
+  mg: number; // Magnesium (g)
   rdp: number; // Rumen Degradable Protein (g)
   rup: number; // Rumen Undegradable Protein (g)
   lysine: number; // Metabolizable Lysine (g)
@@ -75,6 +76,7 @@ export interface FeedIngredient {
   methionine: number; // % of CP (Methionine content)
   ca: number; // % DM
   p: number; // % DM
+  mg: number; // % DM
   na: number; // % DM
   k: number; // % DM
   cl: number; // % DM

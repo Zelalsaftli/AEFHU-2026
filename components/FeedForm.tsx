@@ -105,6 +105,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
         methionine: 1.5,
         ca: 0.1,
         p: 0.1,
+        mg: 0.1,
         na: 0.05,
         k: 0.5,
         cl: 0.1,
@@ -246,6 +247,10 @@ const FeedForm: React.FC<FeedFormProps> = ({
                <div>
                   <div className="text-xl font-bold ltr">{(mixAnalysis.p / 10).toFixed(2)}%</div>
                   <div className="text-[10px] opacity-80">فوسفور</div>
+              </div>
+               <div>
+                  <div className="text-xl font-bold ltr">{(mixAnalysis.mg / 10).toFixed(2)}%</div>
+                  <div className="text-[10px] opacity-80">مغنيسيوم</div>
               </div>
               {/* New Nutrients */}
               <div>
@@ -453,6 +458,14 @@ const FeedForm: React.FC<FeedFormProps> = ({
                               <DecimalInput 
                                   value={editingIngredient.p} 
                                   onChange={(val) => handleModalChange('p', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">المغنيسيوم (Mg % DM)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.mg} 
+                                  onChange={(val) => handleModalChange('mg', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none ltr"
                               />
                           </div>

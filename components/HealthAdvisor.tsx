@@ -21,9 +21,16 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [showKeyInput, setShowKeyInput] = useState(false);
 
+  // Rough estimate of total DM for concentration calculations
+  const totalDM = (needs.predictedDmi || 15); 
+
   // Check for RUP deficiency
   const rupDeficiency = supplied.rup < needs.rup * 0.9;
   const energyDeficiency = supplied.me < needs.me * 0.95;
+  const mgDeficiency = supplied.mg < needs.mg * 0.9;
+  const highPotassium = (supplied.k / (totalDM * 10)) > 2.0; // K > 2.0% DM is high
+  const highSulfur = (supplied.s / (totalDM * 10)) > 0.4; // S > 0.4% DM is risky
+  const naDeficiency = supplied.na < needs.na * 0.8;
 
   useEffect(() => {
     const today = new Date().toDateString();
@@ -162,7 +169,7 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
       </div>
 
       {/* Dynamic Technical Tips Section */}
-      {(rupDeficiency || energyDeficiency) && (
+      {(rupDeficiency || energyDeficiency || mgDeficiency || highPotassium || highSulfur || naDeficiency) && (
         <div className="mb-8 space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 px-2">
                 <Lightbulb className="text-yellow-500 w-5 h-5" />
@@ -204,6 +211,90 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
                                     <li>أضف المولاس (دبس السكر) لتحسين الشهية والطاقة السريعة.</li>
                                     <li>ارفع نسبة الذرة الصفراء في الخلطة المركزة.</li>
                                     <li>تأكد من جودة السيلاج أو الدريس المقدم.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {mgDeficiency && (
+                <div className="bg-emerald-50 border-r-4 border-emerald-500 p-5 rounded-xl shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="text-emerald-600 w-6 h-6 mt-1 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-emerald-900 mb-1">نقص في المغنيسيوم (Mg) - خطر تيتاني الحشائش</h4>
+                            <div className="text-sm text-emerald-800 leading-relaxed">
+                                نقص المغنيسيوم قد يؤدي إلى "تيتاني الحشائش" (Grass Tetany) واضطرابات في الأعصاب.
+                                <br />
+                                <strong className="block mt-2">مقترحات للحل:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>أضف أكسيد المغنيسيوم (MgO) إلى الخلطة المركزة.</li>
+                                    <li>تأكد من توازن البوتاسيوم في العليقة لأنه يعيق امتصاص المغنيسيوم.</li>
+                                    <li>في المراعي الخضراء السريعة، قدم مكملات المغنيسيوم بشكل يومي.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {highPotassium && (
+                <div className="bg-yellow-50 border-r-4 border-yellow-500 p-5 rounded-xl shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="text-yellow-600 w-6 h-6 mt-1 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-yellow-900 mb-1">ارتفاع البوتاسيوم (K) - تداخل مع المغنيسيوم</h4>
+                            <div className="text-sm text-yellow-800 leading-relaxed">
+                                نسبة البوتاسيوم عالية ({'>'}2% DM). هذا يقلل بشكل كبير من امتصاص المغنيسيوم في الكرش (NASEM 2021).
+                                <br />
+                                <strong className="block mt-2">توصيات:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>ارفع مستوى المغنيسيوم في العليقة لتعويض نقص الامتصاص.</li>
+                                    <li>تجنب استخدام الدريس أو السيلاج الذي تم تسميده بكثافة بالبوتاسيوم للأبقار الجافة.</li>
+                                    <li>راقب مخاطر حمى الحليب (Milk Fever) بسبب تأثير البوتاسيوم على توازن الأحماض والقواعد.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {highSulfur && (
+                <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-xl shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="text-red-600 w-6 h-6 mt-1 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-red-900 mb-1">ارتفاع الكبريت (S) - خطر التسمم العصبي</h4>
+                            <div className="text-sm text-red-800 leading-relaxed">
+                                نسبة الكبريت عالية ({'>'}0.4% DM). هذا قد يؤدي إلى مرض "تلين الدماغ" (PEM) بسبب غاز H2S السام.
+                                <br />
+                                <strong className="block mt-2">توصيات:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>قلل من استخدام مخلفات التقطير (Distillers Grains) إذا كانت هي المصدر.</li>
+                                    <li>تأكد من نسبة النحاس والسيلينيوم لأن الكبريت العالي يعيق امتصاصهما.</li>
+                                    <li>افحص مياه الشرب، فقد تكون غنية بالكبريتات.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {naDeficiency && (
+                <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-xl shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="text-orange-600 w-6 h-6 mt-1 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-orange-900 mb-1">نقص الصوديوم (Na) - خطر انخفاض الإنتاج</h4>
+                            <div className="text-sm text-orange-800 leading-relaxed">
+                                الصوديوم منخفض جداً. سيؤدي هذا لانخفاض الشهية وإنتاج الحليب وظهور سلوك "الوحم" (Pica).
+                                <br />
+                                <strong className="block mt-2">توصيات:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>أضف ملح الطعام (NaCl) بمعدل 0.5% إلى 1% من الخلطة المركزة.</li>
+                                    <li>وفر قوالب الملح للأبقار لتلعقها بحرية.</li>
+                                    <li>في الأجواء الحارة، تزداد الحاجة للصوديوم بسبب التعرق.</li>
                                 </ul>
                             </div>
                         </div>
