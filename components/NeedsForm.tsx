@@ -1,6 +1,6 @@
 import React from 'react';
 import { CowParameters, Nutrients } from '../types';
-import { Info, AlertCircle, Leaf } from 'lucide-react';
+import { Info, AlertCircle, Leaf, Activity } from 'lucide-react';
 import DecimalInput from './DecimalInput';
 
 interface NeedsFormProps {
@@ -220,6 +220,62 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
             </select>
           </div>
         </div>
+
+        {/* Advanced NASEM 2021 Factors */}
+        <div className="mt-8 pt-6 border-t border-slate-100">
+          <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-emerald-600" />
+            عوامل متقدمة (NASEM 2021)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="form-group">
+              <label className="block text-sm font-medium text-slate-700 mb-2">نسبة اللاكتوز في الحليب (%)</label>
+              <DecimalInput
+                value={params.lactosePercentage || 4.85}
+                onChange={(val) => handleDecimalChange('lactosePercentage', val)}
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">الافتراضي 4.85%</p>
+            </div>
+
+            <div className="form-group">
+              <label className="block text-sm font-medium text-slate-700 mb-2">درجة الحرارة المحيطة (م°)</label>
+              <DecimalInput
+                value={params.ambientTemperature || 20}
+                onChange={(val) => handleDecimalChange('ambientTemperature', val)}
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="block text-sm font-medium text-slate-700 mb-2">الرطوبة النسبية (%)</label>
+              <DecimalInput
+                value={params.relativeHumidity || 50}
+                onChange={(val) => handleDecimalChange('relativeHumidity', val)}
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="block text-sm font-medium text-slate-700 mb-2">مسافة المشي اليومية (كم)</label>
+              <DecimalInput
+                value={params.walkingDistance || 0}
+                onChange={(val) => handleDecimalChange('walkingDistance', val)}
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">تزيد من احتياجات الطاقة الحافظة</p>
+            </div>
+
+            <div className="form-group">
+              <label className="block text-sm font-medium text-slate-700 mb-2">العمر عند أول ولادة (شهر)</label>
+              <DecimalInput
+                value={params.ageAtFirstCalving || 24}
+                onChange={(val) => handleDecimalChange('ageAtFirstCalving', val)}
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Calculated Requirements Display */}
@@ -274,6 +330,12 @@ const NeedsForm: React.FC<NeedsFormProps> = ({ params, setParams, calculatedNeed
                 <p className="text-2xl font-bold text-emerald-600">{calculatedNeeds.peNDF}</p>
                 <p className="text-xs text-slate-400">g/day</p>
                 <p className="text-[9px] text-slate-400 mt-1">~20% من المادة الجافة</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm text-center flex flex-col justify-center">
+                <p className="text-sm text-slate-500 mb-1">ألياف uNDF240 (الحد الأقصى)</p>
+                <p className="text-2xl font-bold text-red-600">{calculatedNeeds.uNDF240}</p>
+                <p className="text-xs text-slate-400">g/day</p>
+                <p className="text-[9px] text-slate-400 mt-1">سعة الكرش الفيزيائية</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm text-center flex flex-col justify-center">
                 <p className="text-sm text-slate-500 mb-1">توازن الكاتيونات والأنيونات (DCAD)</p>

@@ -42,7 +42,7 @@ const App: React.FC = () => {
     me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
     na: 0, k: 0, cl: 0, s: 0, dcad: 0, peNDF: 0,
     ca: 0, p: 0, 
-    starch: 0, sugar: 0, ndf: 0, adf: 0,
+    starch: 0, sugar: 0, ndf: 0, uNDF240: 0, adf: 0,
     predictedDmi: 0,
     co: 0, cu: 0, i: 0, fe: 0, mn: 0, se: 0, zn: 0,
     vitA: 0, vitD: 0, vitE: 0
@@ -61,7 +61,7 @@ const App: React.FC = () => {
     me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
     na: 0, k: 0, cl: 0, s: 0, dcad: 0, peNDF: 0,
     ca: 0, p: 0,
-    starch: 0, sugar: 0, ndf: 0, adf: 0
+    starch: 0, sugar: 0, ndf: 0, uNDF240: 0, adf: 0
   });
   const [totalDM, setTotalDM] = useState<number>(0);
   const [totalAsFed, setTotalAsFed] = useState<number>(0);
@@ -69,7 +69,7 @@ const App: React.FC = () => {
     me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, 
     na: 0, k: 0, cl: 0, s: 0, dcad: 0, peNDF: 0,
     ca: 0, p: 0,
-    starch: 0, sugar: 0, ndf: 0, adf: 0
+    starch: 0, sugar: 0, ndf: 0, uNDF240: 0, adf: 0
   });
   const [rationStructure, setRationStructure] = useState<{ 
       concentrateDM: number; forageDM: number; concentratePercent: number; foragePercent: number; 

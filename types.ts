@@ -11,10 +11,15 @@ export interface CowParameters {
   lactationStage: 'early' | 'mid' | 'late' | 'dry';
   environment: 'neutral' | 'heat_mild' | 'heat_severe' | 'cold';
   grazing: 'none' | 'flat' | 'hilly';
-  // New Factors
   lactationNumber: number; // 1 (First calf), 2, or 3+ (Mature)
   breed: 'holstein' | 'jersey' | 'other';
   groupSize: number; // Number of cows in the group
+  // Advanced NASEM 2021 Factors
+  lactosePercentage?: number; // Default 4.85%
+  ambientTemperature?: number; // Celsius
+  relativeHumidity?: number; // %
+  walkingDistance?: number; // km/day
+  ageAtFirstCalving?: number; // months
 }
 
 export interface Nutrients {
@@ -35,6 +40,7 @@ export interface Nutrients {
   sugar: number; // % DM or g
   ndf: number; // Neutral Detergent Fiber (g)
   peNDF: number; // Physically Effective NDF (g)
+  uNDF240: number; // Undigested NDF at 240h (g)
   adf: number; // Acid Detergent Fiber (g)
   predictedDmi?: number; // Feed 2026 Predicted Dry Matter Intake (kg)
   // Environmental Metrics (NASEM 2021)
@@ -77,6 +83,7 @@ export interface FeedIngredient {
   sugar: number; // % DM
   ndf: number; // % DM
   peFactor: number; // Physical Effectiveness Factor (0-1)
+  uNDF240: number; // % DM (Undigested NDF at 240h)
   adf: number; // % DM
   // Trace Minerals (mg/kg DM)
   co?: number;

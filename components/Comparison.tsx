@@ -37,6 +37,7 @@ const Comparison: React.FC<ComparisonProps> = ({
     { name: 'البروتين (g/10)', required: Math.round((needs?.cp || 0) / 10), supplied: Math.round((supplied?.cp || 0) / 10), unit: 'x10 g' },
     { name: 'Ca (g)', required: needs?.ca || 0, supplied: supplied?.ca || 0, unit: 'g' },
     { name: 'NDF (g/10)', required: Math.round((needs?.ndf || 0)/10), supplied: Math.round((supplied?.ndf || 0)/10), unit: 'x10 g' },
+    { name: 'uNDF240 (g/10)', required: Math.round((needs?.uNDF240 || 0)/10), supplied: Math.round((supplied?.uNDF240 || 0)/10), unit: 'x10 g' },
   ];
 
   // Radar Data: Normalized to 100% of requirement
@@ -44,6 +45,7 @@ const Comparison: React.FC<ComparisonProps> = ({
     { subject: 'الطاقة (ME)', A: needs.me > 0 ? (supplied.me / needs.me) * 100 : 0, fullMark: 150 },
     { subject: 'البروتين (CP)', A: needs.cp > 0 ? (supplied.cp / needs.cp) * 100 : 0, fullMark: 150 },
     { subject: 'الألياف (NDF)', A: needs.ndf > 0 ? (supplied.ndf / needs.ndf) * 100 : 0, fullMark: 150 },
+    { subject: 'سعة الكرش (uNDF)', A: needs.uNDF240 > 0 ? (supplied.uNDF240 / needs.uNDF240) * 100 : 0, fullMark: 150 },
     { subject: 'الكالسيوم (Ca)', A: needs.ca > 0 ? (supplied.ca / needs.ca) * 100 : 0, fullMark: 150 },
     { subject: 'الفوسفور (P)', A: needs.p > 0 ? (supplied.p / needs.p) * 100 : 0, fullMark: 150 },
     { subject: 'اللايسين (Lys)', A: needs.lysine > 0 ? (supplied.lysine / needs.lysine) * 100 : 0, fullMark: 150 },
@@ -275,6 +277,17 @@ const Comparison: React.FC<ComparisonProps> = ({
                         <td className="px-6 py-4">
                             <span className={`px-2 py-1 rounded text-xs font-bold ${supplied?.ndf < needs?.ndf ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
                                 {supplied?.ndf < needs?.ndf ? 'منخفض (خطر)' : 'جيد'}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr className="bg-red-50/30 border-b hover:bg-red-50/50">
+                        <td className="px-6 py-4 font-medium text-red-900 pr-10">• سعة الكرش (uNDF240)</td>
+                        <td className="px-6 py-4">Max {needs?.uNDF240} g</td>
+                        <td className="px-6 py-4">{supplied?.uNDF240} g</td>
+                        <td className="px-6 py-4 ltr text-right">{(supplied?.uNDF240 / (totalDM * 10)).toFixed(1)} %</td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${supplied?.uNDF240 > needs?.uNDF240 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                                {supplied?.uNDF240 > needs?.uNDF240 ? 'امتلاء كامل (توقف)' : 'مساحة كافية'}
                             </span>
                         </td>
                     </tr>

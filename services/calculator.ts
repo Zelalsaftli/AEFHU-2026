@@ -27,8 +27,9 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   const proteinKg = milkKg * (params.proteinPercentage / 100);
   const ecm = (0.3246 * milkKg) + (12.86 * fatKg) + (7.04 * proteinKg);
 
-  // NEmilk_Milk (Mcal/kg) = 9.29 * Fat% + 5.85 * Protein% + 3.95 * Lactose% (assuming 4.85%)
-  const neMilkPerKg = (9.29 * (params.fatPercentage / 100)) + (5.85 * (params.proteinPercentage / 100)) + (3.95 * 0.0485);
+  // NEmilk_Milk (Mcal/kg) = 9.29 * Fat% + 5.85 * Protein% + 3.95 * Lactose%
+  const lactosePct = params.lactosePercentage || 4.85;
+  const neMilkPerKg = (9.29 * (params.fatPercentage / 100)) + (5.85 * (params.proteinPercentage / 100)) + (3.95 * (lactosePct / 100));
   const totalNEmilk = milkKg * neMilkPerKg;
 
   // Parity (1 for primiparous, 2 for multiparous)
@@ -46,9 +47,21 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
       predictedDmi = params.weight * 0.02; // Approx 2% of BW for dry cows
   }
 
-  // Environmental Adjustment for DMI (Heat stress)
-  if (params.environment === 'heat_mild') predictedDmi *= 0.92;
-  if (params.environment === 'heat_severe') predictedDmi *= 0.85;
+  // Environmental Adjustment for DMI (Heat stress based on THI)
+  let thi = 0;
+  if (params.ambientTemperature !== undefined && params.relativeHumidity !== undefined) {
+      const T = params.ambientTemperature;
+      const RH = params.relativeHumidity;
+      thi = (1.8 * T + 32) - (0.55 - 0.0055 * RH) * (1.8 * T - 26);
+      
+      if (thi > 68) {
+          const dmiReduction = (thi - 68) * 0.015; // 1.5% reduction per unit THI > 68
+          predictedDmi *= (1 - dmiReduction);
+      }
+  } else {
+      if (params.environment === 'heat_mild') predictedDmi *= 0.92;
+      if (params.environment === 'heat_severe') predictedDmi *= 0.85;
+  }
 
   const estimatedDMI = Math.max(predictedDmi, 5); // Floor at 5kg
 
@@ -62,12 +75,20 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   }
 
   // Environment adjustment for Maintenance
-  if (params.environment === 'heat_mild') {
+  if (thi > 72) {
+      neMaint *= (1 + (thi - 72) * 0.02); // 2% increase per unit THI > 72
+  } else if (params.environment === 'heat_mild') {
     neMaint *= 1.10; 
   } else if (params.environment === 'heat_severe') {
     neMaint *= 1.25; 
   } else if (params.environment === 'cold') {
     neMaint *= 1.15; 
+  }
+
+  // Walking Distance Adjustment (NASEM 2021)
+  if (params.walkingDistance) {
+      const walkingEnergy = 0.00045 * params.weight * params.walkingDistance;
+      neMaint += walkingEnergy;
   }
 
   let activityFactor = 1.0;
@@ -144,29 +165,60 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   methionine = (milkMetNP + maintMetNP) / 0.73;
 
   // --- Mineral Requirements (NASEM 2021) ---
+  // Note: NASEM 2021 calculates "Absorbed" requirements, then divides by an Absorption Coefficient (AC)
+  // to get the "Dietary" requirement.
+  
   // 1. Calcium (Ca)
-  // Maintenance (0.9g/kg DMI) + Milk (1.22g/kg) + Growth (16g/kg gain)
-  let caReq = (0.9 * estimatedDMI) + (milkKg * 1.22) + (growthRateToUse * 16);
-  // Pregnancy Ca (Significant in last trimester)
-  if (params.pregnancyMonth === 7) caReq += 2.0;
-  if (params.pregnancyMonth === 8) caReq += 5.0;
-  if (params.pregnancyMonth === 9) caReq += 10.0;
-  ca = caReq;
+  // Absorbed Maintenance: 0.9g/kg DMI + 0.0008g/kg BW
+  // Absorbed Milk: 1.22g/kg milk
+  // Absorbed Growth: 9.7g/kg ADG
+  const absorbedCaMaint = (0.9 * estimatedDMI) + (0.0008 * params.weight);
+  const absorbedCaMilk = milkKg * 1.22;
+  const absorbedCaGrowth = growthRateToUse * 9.7;
+  let absorbedCaPreg = 0;
+  if (params.pregnancyMonth === 7) absorbedCaPreg = 2.5;
+  if (params.pregnancyMonth === 8) absorbedCaPreg = 5.5;
+  if (params.pregnancyMonth === 9) absorbedCaPreg = 9.5;
+
+  const totalAbsorbedCa = absorbedCaMaint + absorbedCaMilk + absorbedCaGrowth + absorbedCaPreg;
+  // Dietary Ca = Absorbed / AC (Average AC for Ca is ~0.50 in NASEM 2021)
+  ca = totalAbsorbedCa / 0.50;
 
   // 2. Phosphorus (P)
-  // Maintenance (1.0g/kg DMI) + Milk (0.9g/kg) + Growth (9g/kg gain)
-  let pReq = (1.0 * estimatedDMI) + (milkKg * 0.9) + (growthRateToUse * 9);
-  // Pregnancy P
-  if (params.pregnancyMonth === 7) pReq += 1.0;
-  if (params.pregnancyMonth === 8) pReq += 2.5;
-  if (params.pregnancyMonth === 9) pReq += 5.0;
-  p = pReq;
+  // Absorbed Maintenance (Eq 7-5b): 1.0g/kg DMI + 0.0006g/kg BW
+  const absorbedPMaint = (1.0 * estimatedDMI) + (0.0006 * params.weight);
+  
+  // Absorbed Milk (Eq 7-8b): Milk yield * [0.49 + 0.13 * Milk protein (%)]
+  const absorbedPMilk = milkKg * (0.49 + 0.13 * params.proteinPercentage);
+  
+  // Absorbed Growth (Eq 7-6): (1.2 + ((4.635 * MatBW^0.22)(BW^-0.22))) * ADG
+  const matBW = params.breed === 'holstein' ? 715 : 650; // NASEM 2021 standard mature weights
+  const absorbedPGrowth = growthRateToUse > 0 
+    ? (1.2 + (4.635 * Math.pow(matBW, 0.22) * Math.pow(params.weight, -0.22))) * growthRateToUse
+    : 0;
+
+  // Absorbed Pregnancy (Eq 7-7): Exponential accretion for t > 190 days
+  let absorbedPPreg = 0;
+  const t = params.pregnancyMonth * 30; // Estimate days of gestation
+  if (t > 190) {
+      const p_t = 0.02743 * Math.exp((0.05527 - 0.000075 * t) * t);
+      const p_t_minus_1 = 0.02743 * Math.exp((0.05527 - 0.000075 * (t - 1)) * (t - 1));
+      absorbedPPreg = (p_t - p_t_minus_1) * (params.weight / 715);
+  }
+
+  const totalAbsorbedP = absorbedPMaint + absorbedPMilk + absorbedPGrowth + absorbedPPreg;
+  // Dietary P = Absorbed / AC (Average AC for P is ~0.70 in NASEM 2021)
+  p = totalAbsorbedP / 0.70;
 
   // Guidelines (approximate):
   const ndfReq = estimatedDMI * 1000 * 0.30; // in grams
   const adfReq = estimatedDMI * 1000 * 0.21; // in grams
   const starchMax = estimatedDMI * 1000 * 0.26; // in grams (Max limit)
   const sugarReq = estimatedDMI * 1000 * 0.05; // in grams (Rough target)
+  
+  // uNDF240 Limit (Physical Fill) - NASEM 2021
+  // Limit is ~0.30% to 0.40% of BW
+  const undfLimit = params.weight * 0.0035 * 1000; // in grams
 
   // 6. Protein Fractions (RDP/RUP)
   // Standard: RDP is ~65% of CP, RUP is ~35%
@@ -220,6 +272,7 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     ca: Math.round(ca),
     p: Math.round(p),
     ndf: Math.round(ndfReq),
+    uNDF240: Math.round(undfLimit),
     adf: Math.round(adfReq),
     starch: Math.round(starchMax), 
     sugar: Math.round(sugarReq),
@@ -266,6 +319,7 @@ export const calculateSupplied = (
   let totalStarch = 0;
   let totalSugar = 0;
   let totalNDF = 0;
+  let totaluNDF240 = 0;
   let totalPeNDF = 0;
   let totalADF = 0;
   let totalDM = 0;
@@ -279,7 +333,7 @@ export const calculateSupplied = (
   // 1. Calculate Concentrate Mix Analysis (per 1kg of mix)
   const totalParts = concentrateMix.reduce((acc, item) => acc + item.amount, 0);
   
-  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixPeNDF = 0, mixADF = 0;
+  let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixuNDF240 = 0, mixPeNDF = 0, mixADF = 0;
   let mixCo = 0, mixCu = 0, mixI = 0, mixFe = 0, mixMn = 0, mixSe = 0, mixZn = 0, mixVitA = 0, mixVitD = 0, mixVitE = 0;
 
   if (totalParts > 0) {
@@ -308,6 +362,7 @@ export const calculateSupplied = (
             mixStarch += (feed.starch * 10 * dmFactor) * ratio;
             mixSugar += (feed.sugar * 10 * dmFactor) * ratio;
             mixNDF += ndfInMix;
+            mixuNDF240 += (feed.uNDF240 * 10 * dmFactor) * ratio;
             mixPeNDF += ndfInMix * feed.peFactor;
             mixADF += (feed.adf * 10 * dmFactor) * ratio;
 
@@ -355,6 +410,7 @@ export const calculateSupplied = (
   totalStarch += mixStarch * concentrateAmountFed;
   totalSugar += mixSugar * concentrateAmountFed;
   totalNDF += mixNDF * concentrateAmountFed;
+  totaluNDF240 += mixuNDF240 * concentrateAmountFed;
   totalPeNDF += mixPeNDF * concentrateAmountFed;
   totalADF += mixADF * concentrateAmountFed;
 
@@ -405,6 +461,7 @@ export const calculateSupplied = (
           totalStarch += feed.starch * 10 * kgDM;
           totalSugar += feed.sugar * 10 * kgDM;
           totalNDF += feed.ndf * 10 * kgDM;
+          totaluNDF240 += feed.uNDF240 * 10 * kgDM;
           totalPeNDF += (feed.ndf * 10 * kgDM) * feed.peFactor;
           totalADF += feed.adf * 10 * kgDM;
 
@@ -484,6 +541,7 @@ export const calculateSupplied = (
     starch: Math.round(totalStarch),
     sugar: Math.round(totalSugar),
     ndf: Math.round(totalNDF),
+    uNDF240: Math.round(totaluNDF240),
     adf: Math.round(totalADF),
     co: parseFloat(totalCo.toFixed(2)),
     cu: parseFloat(totalCu.toFixed(1)),
@@ -519,6 +577,7 @@ export const calculateSupplied = (
         starch: Math.round(mixStarch),
         sugar: Math.round(mixSugar),
         ndf: Math.round(mixNDF),
+        uNDF240: Math.round(mixuNDF240),
         adf: Math.round(mixADF)
     },
     rationStructure: {

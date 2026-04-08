@@ -113,6 +113,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
         starch: 0,
         sugar: 0,
         ndf: 10,
+        uNDF240: 5,
         adf: 5,
         defaultPrice: 0
     });
@@ -526,6 +527,14 @@ const FeedForm: React.FC<FeedFormProps> = ({
                                   value={editingIngredient.adf} 
                                   onChange={(val) => handleModalChange('adf', val)}
                                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-emerald-50/50 ltr"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">ألياف uNDF240 (% DM)</label>
+                              <DecimalInput 
+                                  value={editingIngredient.uNDF240} 
+                                  onChange={(val) => handleModalChange('uNDF240', val)}
+                                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-red-50/30 ltr"
                               />
                           </div>
                       </div>
