@@ -223,15 +223,15 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
                     <div className="flex items-start gap-3">
                         <AlertCircle className="text-emerald-600 w-6 h-6 mt-1 flex-shrink-0" />
                         <div>
-                            <h4 className="font-bold text-emerald-900 mb-1">نقص في المغنيسيوم (Mg) - خطر تيتاني الحشائش</h4>
+                            <h4 className="font-bold text-emerald-900 mb-1">نقص في المغنيزيوم (Mg) - خطر تيتاني الحشائش</h4>
                             <div className="text-sm text-emerald-800 leading-relaxed">
-                                نقص المغنيسيوم قد يؤدي إلى "تيتاني الحشائش" (Grass Tetany) واضطرابات في الأعصاب.
+                                نقص المغنيزيوم قد يؤدي إلى "تيتاني الحشائش" (Grass Tetany) واضطرابات في الأعصاب.
                                 <br />
                                 <strong className="block mt-2">مقترحات للحل:</strong>
                                 <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>أضف أكسيد المغنيسيوم (MgO) إلى الخلطة المركزة.</li>
-                                    <li>تأكد من توازن البوتاسيوم في العليقة لأنه يعيق امتصاص المغنيسيوم.</li>
-                                    <li>في المراعي الخضراء السريعة، قدم مكملات المغنيسيوم بشكل يومي.</li>
+                                    <li>أضف أكسيد المغنيزيوم (MgO) إلى الخلطة المركزة.</li>
+                                    <li>تأكد من توازن البوتاسيوم في العليقة لأنه يعيق امتصاص المغنيزيوم.</li>
+                                    <li>في المراعي الخضراء السريعة، قدم مكملات المغنيزيوم بشكل يومي.</li>
                                 </ul>
                             </div>
                         </div>
@@ -244,13 +244,13 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
                     <div className="flex items-start gap-3">
                         <AlertCircle className="text-yellow-600 w-6 h-6 mt-1 flex-shrink-0" />
                         <div>
-                            <h4 className="font-bold text-yellow-900 mb-1">ارتفاع البوتاسيوم (K) - تداخل مع المغنيسيوم</h4>
+                            <h4 className="font-bold text-yellow-900 mb-1">ارتفاع البوتاسيوم (K) - تداخل مع المغنيزيوم</h4>
                             <div className="text-sm text-yellow-800 leading-relaxed">
-                                نسبة البوتاسيوم عالية ({'>'}2% DM). هذا يقلل بشكل كبير من امتصاص المغنيسيوم في الكرش (NASEM 2021).
+                                نسبة البوتاسيوم عالية ({'>'}2% DM). هذا يقلل بشكل كبير من امتصاص المغنيزيوم في الكرش (NASEM 2021).
                                 <br />
                                 <strong className="block mt-2">توصيات:</strong>
                                 <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>ارفع مستوى المغنيسيوم في العليقة لتعويض نقص الامتصاص.</li>
+                                    <li>ارفع مستوى المغنيزيوم في العليقة لتعويض نقص الامتصاص.</li>
                                     <li>تجنب استخدام الدريس أو السيلاج الذي تم تسميده بكثافة بالبوتاسيوم للأبقار الجافة.</li>
                                     <li>راقب مخاطر حمى الحليب (Milk Fever) بسبب تأثير البوتاسيوم على توازن الأحماض والقواعد.</li>
                                 </ul>

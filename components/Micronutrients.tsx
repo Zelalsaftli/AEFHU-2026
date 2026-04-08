@@ -12,7 +12,7 @@ const Micronutrients: React.FC<MicronutrientsProps> = ({ params, needs, supplied
   const macroMinerals = [
     { id: 'ca', name: 'الكالسيوم (Calcium)', req: needs.ca, sup: supplied.ca || 0, unit: 'غ', icon: Activity, desc: 'أساسي للعظام وإنتاج الحليب.' },
     { id: 'p', name: 'الفوسفور (Phosphorus)', req: needs.p, sup: supplied.p || 0, unit: 'غ', icon: Activity, desc: 'مهم للطاقة والخصوبة.' },
-    { id: 'mg', name: 'المغنيسيوم (Magnesium)', req: needs.mg, sup: supplied.mg || 0, unit: 'غ', icon: Activity, desc: 'ضروري للأعصاب والعضلات وامتصاص الكالسيوم.' },
+    { id: 'mg', name: 'المغنيزيوم (Magnesium)', req: needs.mg, sup: supplied.mg || 0, unit: 'غ', icon: Activity, desc: 'ضروري للأعصاب والعضلات وامتصاص الكالسيوم.' },
   ];
 
   const electrolytes = [

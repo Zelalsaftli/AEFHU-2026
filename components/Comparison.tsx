@@ -52,7 +52,7 @@ const Comparison: React.FC<ComparisonProps> = ({
     { subject: 'الألياف (NDF)', A: needs.ndf > 0 ? (supplied.ndf / needs.ndf) * 100 : 0, fullMark: 150 },
     { subject: 'سعة الكرش (uNDF)', A: needs.uNDF240 > 0 ? (supplied.uNDF240 / needs.uNDF240) * 100 : 0, fullMark: 150 },
     { subject: 'الكالسيوم (Ca)', A: needs.ca > 0 ? (supplied.ca / needs.ca) * 100 : 0, fullMark: 150 },
-    { subject: 'المغنيسيوم (Mg)', A: needs.mg > 0 ? (supplied.mg / needs.mg) * 100 : 0, fullMark: 150 },
+    { subject: 'المغنيزيوم (Mg)', A: needs.mg > 0 ? (supplied.mg / needs.mg) * 100 : 0, fullMark: 150 },
     { subject: 'الفوسفور (P)', A: needs.p > 0 ? (supplied.p / needs.p) * 100 : 0, fullMark: 150 },
     { subject: 'اللايسين (Lys)', A: needs.lysine > 0 ? (supplied.lysine / needs.lysine) * 100 : 0, fullMark: 150 },
   ];
@@ -363,7 +363,7 @@ const Comparison: React.FC<ComparisonProps> = ({
                         </td>
                     </tr>
                     <tr className="bg-slate-50/50 border-b hover:bg-slate-50">
-                        <td className="px-6 py-4 font-medium text-slate-900">المغنيسيوم (Mg)</td>
+                        <td className="px-6 py-4 font-medium text-slate-900">المغنيزيوم (Mg)</td>
                         <td className="px-6 py-4">{needs?.mg} g</td>
                         <td className="px-6 py-4">{supplied?.mg} g</td>
                         <td className="px-6 py-4 ltr text-right">{(supplied?.mg / (totalDM * 10)).toFixed(2)} %</td>

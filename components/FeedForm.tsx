@@ -250,7 +250,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
               </div>
                <div>
                   <div className="text-xl font-bold ltr">{(mixAnalysis.mg / 10).toFixed(2)}%</div>
-                  <div className="text-[10px] opacity-80">مغنيسيوم</div>
+                  <div className="text-[10px] opacity-80">مغنيزيوم</div>
               </div>
               {/* New Nutrients */}
               <div>
@@ -462,7 +462,7 @@ const FeedForm: React.FC<FeedFormProps> = ({
                               />
                           </div>
                           <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-1">المغنيسيوم (Mg % DM)</label>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">المغنيزيوم (Mg % DM)</label>
                               <DecimalInput 
                                   value={editingIngredient.mg} 
                                   onChange={(val) => handleModalChange('mg', val)}
