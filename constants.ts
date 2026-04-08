@@ -22,6 +22,7 @@ export const FEED_DATABASE: FeedIngredient[] = [
   { id: 'c_limestone', name: 'حجر جيري (كربونات كالسيوم)', type: 'concentrate', dm: 100, me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, ca: 39.4, p: 0, na: 0, k: 0, cl: 0, s: 0, starch: 0, sugar: 0, ndf: 0, peFactor: 0, adf: 0, defaultPrice: 300 },
   { id: 'c_dcp', name: 'ديكالسيوم فوسفات', type: 'concentrate', dm: 100, me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, ca: 22.0, p: 19.3, na: 0, k: 0, cl: 0, s: 0, starch: 0, sugar: 0, ndf: 0, peFactor: 0, adf: 0, defaultPrice: 10000 },
   { id: 'c_urea', name: 'يوريا', type: 'concentrate', dm: 99, me: 0, cp: 281, rdp: 100, rup: 0, lysine: 0, methionine: 0, ca: 0, p: 0, na: 0, k: 0, cl: 0, s: 0, starch: 0, sugar: 0, ndf: 0, peFactor: 0, adf: 0, defaultPrice: 4000 },
+  { id: 'c_premix', name: 'بريمكس معادن وفيتامينات (NASEM)', type: 'concentrate', dm: 98, me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, ca: 15.0, p: 5.0, na: 5.0, k: 0, cl: 0, s: 1.0, starch: 0, sugar: 0, ndf: 0, peFactor: 0, adf: 0, co: 50, cu: 2500, i: 200, fe: 5000, mn: 10000, se: 100, zn: 15000, vitA: 2000, vitD: 500, vitE: 10000, defaultPrice: 15000 },
 
   // Forages (Roughages)
   { id: 'f_alphalfa_meal', name: 'دريس فصة (برسيم حجازي)', type: 'forage', dm: 90.7, me: 2.05, cp: 19.5, rdp: 64.4, rup: 35.6, lysine: 4.4, methionine: 1.3, ca: 1.50, p: 0.27, na: 0.12, k: 2.33, cl: 0.30, s: 0.26, starch: 1.8, sugar: 8.3, ndf: 42.9, peFactor: 0.9, adf: 33.9, defaultPrice: 4500 },

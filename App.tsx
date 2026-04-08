@@ -237,6 +237,7 @@ const App: React.FC = () => {
         <Micronutrients 
             params={cowParams}
             needs={needs}
+            supplied={supplied}
         />
       )}
     </Layout>

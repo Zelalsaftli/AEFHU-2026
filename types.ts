@@ -78,6 +78,18 @@ export interface FeedIngredient {
   ndf: number; // % DM
   peFactor: number; // Physical Effectiveness Factor (0-1)
   adf: number; // % DM
+  // Trace Minerals (mg/kg DM)
+  co?: number;
+  cu?: number;
+  i?: number;
+  fe?: number;
+  mn?: number;
+  se?: number;
+  zn?: number;
+  // Vitamins (kIU/kg DM or IU/kg DM for VitE)
+  vitA?: number;
+  vitD?: number;
+  vitE?: number;
   defaultPrice: number; // Price per kg
 }
 

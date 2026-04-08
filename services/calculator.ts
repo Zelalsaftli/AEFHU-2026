@@ -270,6 +270,9 @@ export const calculateSupplied = (
   let totalADF = 0;
   let totalDM = 0;
 
+  let totalCo = 0, totalCu = 0, totalI = 0, totalFe = 0, totalMn = 0, totalSe = 0, totalZn = 0;
+  let totalVitA = 0, totalVitD = 0, totalVitE = 0;
+
   let concentrateDM = 0;
   let forageDM = 0;
 
@@ -277,6 +280,7 @@ export const calculateSupplied = (
   const totalParts = concentrateMix.reduce((acc, item) => acc + item.amount, 0);
   
   let mixME = 0, mixCP = 0, mixRDP = 0, mixRUP = 0, mixLys = 0, mixMet = 0, mixNa = 0, mixK = 0, mixCl = 0, mixS = 0, mixCa = 0, mixP = 0, mixStarch = 0, mixSugar = 0, mixNDF = 0, mixPeNDF = 0, mixADF = 0;
+  let mixCo = 0, mixCu = 0, mixI = 0, mixFe = 0, mixMn = 0, mixSe = 0, mixZn = 0, mixVitA = 0, mixVitD = 0, mixVitE = 0;
 
   if (totalParts > 0) {
     concentrateMix.forEach(item => {
@@ -306,6 +310,20 @@ export const calculateSupplied = (
             mixNDF += ndfInMix;
             mixPeNDF += ndfInMix * feed.peFactor;
             mixADF += (feed.adf * 10 * dmFactor) * ratio;
+
+            // Trace Minerals (mg/kg DM * kg DM)
+            mixCo += (feed.co || 0) * dmFactor * ratio;
+            mixCu += (feed.cu || 0) * dmFactor * ratio;
+            mixI += (feed.i || 0) * dmFactor * ratio;
+            mixFe += (feed.fe || 0) * dmFactor * ratio;
+            mixMn += (feed.mn || 0) * dmFactor * ratio;
+            mixSe += (feed.se || 0) * dmFactor * ratio;
+            mixZn += (feed.zn || 0) * dmFactor * ratio;
+
+            // Vitamins
+            mixVitA += (feed.vitA || 0) * dmFactor * ratio;
+            mixVitD += (feed.vitD || 0) * dmFactor * ratio;
+            mixVitE += (feed.vitE || 0) * dmFactor * ratio;
         }
     });
   }
@@ -316,7 +334,9 @@ export const calculateSupplied = (
         na: mixNa, k: mixK, cl: mixCl, s: mixS, 
         dcad: (mixNa / 0.023 + mixK / 0.039) - (mixCl / 0.0355 + mixS / 0.016),
         ca: mixCa, p: mixP, starch: mixStarch, sugar: mixSugar, ndf: mixNDF, 
-        peNDF: mixPeNDF, adf: mixADF 
+        peNDF: mixPeNDF, adf: mixADF,
+        co: mixCo, cu: mixCu, i: mixI, fe: mixFe, mn: mixMn, se: mixSe, zn: mixZn,
+        vitA: mixVitA, vitD: mixVitD, vitE: mixVitE
     };
 
   // 2. Add Concentrate Supplied to Total
@@ -337,6 +357,17 @@ export const calculateSupplied = (
   totalNDF += mixNDF * concentrateAmountFed;
   totalPeNDF += mixPeNDF * concentrateAmountFed;
   totalADF += mixADF * concentrateAmountFed;
+
+  totalCo += mixCo * concentrateAmountFed;
+  totalCu += mixCu * concentrateAmountFed;
+  totalI += mixI * concentrateAmountFed;
+  totalFe += mixFe * concentrateAmountFed;
+  totalMn += mixMn * concentrateAmountFed;
+  totalSe += mixSe * concentrateAmountFed;
+  totalZn += mixZn * concentrateAmountFed;
+  totalVitA += mixVitA * concentrateAmountFed;
+  totalVitD += mixVitD * concentrateAmountFed;
+  totalVitE += mixVitE * concentrateAmountFed;
   
   const mixDMRatio = concentrateMix.reduce((acc, item) => {
       const feed = feedDatabase.find(f => f.id === item.ingredientId);
@@ -376,6 +407,17 @@ export const calculateSupplied = (
           totalNDF += feed.ndf * 10 * kgDM;
           totalPeNDF += (feed.ndf * 10 * kgDM) * feed.peFactor;
           totalADF += feed.adf * 10 * kgDM;
+
+          totalCo += (feed.co || 0) * kgDM;
+          totalCu += (feed.cu || 0) * kgDM;
+          totalI += (feed.i || 0) * kgDM;
+          totalFe += (feed.fe || 0) * kgDM;
+          totalMn += (feed.mn || 0) * kgDM;
+          totalSe += (feed.se || 0) * kgDM;
+          totalZn += (feed.zn || 0) * kgDM;
+          totalVitA += (feed.vitA || 0) * kgDM;
+          totalVitD += (feed.vitD || 0) * kgDM;
+          totalVitE += (feed.vitE || 0) * kgDM;
 
           forageDM += kgDM;
           totalDM += kgDM;
@@ -443,6 +485,16 @@ export const calculateSupplied = (
     sugar: Math.round(totalSugar),
     ndf: Math.round(totalNDF),
     adf: Math.round(totalADF),
+    co: parseFloat(totalCo.toFixed(2)),
+    cu: parseFloat(totalCu.toFixed(1)),
+    i: parseFloat(totalI.toFixed(2)),
+    fe: parseFloat(totalFe.toFixed(1)),
+    mn: parseFloat(totalMn.toFixed(1)),
+    se: parseFloat(totalSe.toFixed(2)),
+    zn: parseFloat(totalZn.toFixed(1)),
+    vitA: Math.round(totalVitA),
+    vitD: Math.round(totalVitD),
+    vitE: Math.round(totalVitE),
     totalDM: parseFloat(totalDM.toFixed(2)),
     totalAsFed: parseFloat(totalAsFed.toFixed(2)),
     manureProduction: Math.round(Math.max(0, manureProduction)),
