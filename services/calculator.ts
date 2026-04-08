@@ -18,136 +18,138 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
 
   const w075 = Math.pow(params.weight, 0.75);
 
-  // 1. Maintenance (Feed 2026)
-  // Base NEl maintenance is 0.10 Mcal/kg BW^0.75
-  // Converting to ME: ME = NEl / 0.64 = 0.156
-  let meMaintCoeff = 0.156; 
-
-  // Breed Adjustment: Jersey cows have significantly higher basal metabolism
-  if (params.breed === 'jersey') {
-    meMaintCoeff *= 1.15; // +15% for Jerseys
-  }
-
-  // Environment adjustment for Maintenance (Feed 2026 Table 3-1)
-  // Heat stress (THI > 68) increases maintenance by 7-25%
-  if (params.environment === 'heat_mild') {
-    meMaintCoeff *= 1.10; 
-  } else if (params.environment === 'heat_severe') {
-    meMaintCoeff *= 1.25; 
-  } else if (params.environment === 'cold') {
-    meMaintCoeff *= 1.15; 
-  }
-
-  let activityFactor = 1.0;
-  if (params.grazing === 'flat') {
-    activityFactor = 1.15; // +15% for grazing
-  } else if (params.grazing === 'hilly') {
-    activityFactor = 1.30; // +30% for hilly grazing
-  }
-  
-  const meMaint = (meMaintCoeff * w075) * activityFactor;
-  // CP Maintenance: ~4.8 g MP/kg BW^0.75. Converting MP to CP (approx / 0.67)
-  const cpMaint = (7.2 * w075) * activityFactor; 
-  
-  const caMaint = 0.0154 * params.weight;
-  const pMaint = 0.0125 * params.weight;
-
-  me += meMaint;
-  cp += cpMaint;
-  ca += caMaint;
-  p += pMaint;
-
-  // 2. Milk Production (Feed 2026)
-  // NEl (Mcal/kg) = 0.0929 * Fat% + 0.0547 * Protein% + 0.192 (assuming 4.85% lactose)
-  const nelPerKgMilk = (0.0929 * params.fatPercentage) + (0.0547 * params.proteinPercentage) + 0.192;
-  const mePerKgMilk = nelPerKgMilk / 0.64; 
-  me += params.milkProduction * mePerKgMilk;
-  
-  // CP for Milk: ~95g CP per kg milk (assuming 3.2% protein and 67% efficiency)
-  const cpPerKgMilk = (params.proteinPercentage * 10) / 0.33; // Approx 30g protein / 0.33 efficiency = 90g
-  cp += params.milkProduction * cpPerKgMilk; 
-  ca += params.milkProduction * 1.22;
-  p += params.milkProduction * 0.9;
-
-  // 3. Pregnancy (Feed 2026)
-  // Requirements start increasing significantly after month 6
-  if (params.pregnancyMonth > 6) {
-    const daysPreg = (params.pregnancyMonth * 30);
-    // Simplified Feed 2026 Pregnancy NEl: (0.00318 * days - 0.0352) * (birth_weight/45)
-    // At 270 days: ~2.5 Mcal NEl/d = 3.9 Mcal ME/d
-    const pregFactor = (params.pregnancyMonth - 6);
-    me += 2.0 * pregFactor; 
-    cp += 150 * pregFactor;
-    ca += 12 * pregFactor;
-    p += 8 * pregFactor;
-  }
-
-  // 4. Growth
-  // Feed 2026 encourages adding growth requirements for Parity 1 & 2 even if user didn't specify rate
-  let growthRateToUse = params.growthRate;
-  if (growthRateToUse === 0) {
-      if (params.lactationNumber === 1) growthRateToUse = 0.5; // Auto-add growth for 1st lactation
-      if (params.lactationNumber === 2) growthRateToUse = 0.2; // Auto-add growth for 2nd lactation
-  }
-
-  if (growthRateToUse > 0) {
-     me += 5 * growthRateToUse; 
-     cp += 300 * growthRateToUse;
-     ca += 25 * growthRateToUse;
-     p += 15 * growthRateToUse;
-  }
-
-  // 5. Body Condition Change
-  if (params.bcsChange > 0) {
-      me += 6.0 * params.bcsChange; 
-      cp += 60 * params.bcsChange; 
-  } else if (params.bcsChange < 0) {
-      me += 4.9 * params.bcsChange; 
-  }
-
   // --- NASEM 2021 Dry Matter Intake (DMI) Calculation ---
-  // Formula: DMI (kg/d) = (0.0115 * BW + 0.384 * ECM) * (1 - exp(-0.192 * (WIM + 3.67)))
+  // Formula: DMI (kg/d) = (3.7 + 5.7 * (Parity - 1) + 0.305 * NEmilk + 0.022 * BW + (-0.689 - 1.87 * (Parity - 1)) * BCS) * LagFactor
   // First, calculate Energy Corrected Milk (ECM) - NASEM 2021
   // ECM = (0.3246 * Milk) + (12.86 * Fat_kg) + (7.04 * Protein_kg)
-  
   const milkKg = params.milkProduction;
   const fatKg = milkKg * (params.fatPercentage / 100);
   const proteinKg = milkKg * (params.proteinPercentage / 100);
-  
   const ecm = (0.3246 * milkKg) + (12.86 * fatKg) + (7.04 * proteinKg);
-  
-  // Weeks In Milk (WIM)
-  const wim = params.daysInMilk / 7;
 
-  // Base DMI (NASEM 2021)
-  let predictedDmi = (0.0115 * params.weight) + (0.384 * ecm);
+  // NEmilk_Milk (Mcal/kg) = 9.29 * Fat% + 5.85 * Protein% + 3.95 * Lactose% (assuming 4.85%)
+  const neMilkPerKg = (9.29 * (params.fatPercentage / 100)) + (5.85 * (params.proteinPercentage / 100)) + (3.95 * 0.0485);
+  const totalNEmilk = milkKg * neMilkPerKg;
+
+  // Parity (1 for primiparous, 2 for multiparous)
+  const parity = params.lactationNumber === 1 ? 1 : 2;
   
+  // Base DMI (NASEM 2021 Eq 2-1)
+  let predictedDmi = (3.7 + 5.7 * (parity - 1) + 0.305 * totalNEmilk + 0.022 * params.weight + (-0.689 - 1.87 * (parity - 1)) * params.currentBcs);
+  
+  // Early Lactation Lag Adjustment (NASEM 2021)
+  const lagFactor = 1 - (0.212 + 0.136 * (parity - 1)) * Math.exp(-0.053 * params.daysInMilk);
+  predictedDmi = predictedDmi * lagFactor;
+
   // Dry Period Adjustment for DMI
   if (params.lactationStage === 'dry') {
       predictedDmi = params.weight * 0.02; // Approx 2% of BW for dry cows
   }
 
-  // Parity Adjustment for DMI (NASEM 2021 often applies a factor for primiparous)
-  if (params.lactationNumber === 1 && params.lactationStage !== 'dry') {
-      predictedDmi = predictedDmi * 0.95; // 5% reduction for 1st lactation in some NASEM contexts
-  }
-
-  // Early Lactation Lag Adjustment (NASEM 2021)
-  const lagFactor = 1 - Math.exp(-0.192 * (wim + 3.67));
-  predictedDmi = predictedDmi * lagFactor;
-
   // Environmental Adjustment for DMI (Heat stress)
   if (params.environment === 'heat_mild') predictedDmi *= 0.92;
   if (params.environment === 'heat_severe') predictedDmi *= 0.85;
 
-  const estimatedDMI = predictedDmi;
+  const estimatedDMI = Math.max(predictedDmi, 5); // Floor at 5kg
+
+  // 1. Maintenance Energy (NASEM 2021)
+  // Base NEl maintenance is 0.10 Mcal/kg BW^0.75
+  let neMaint = 0.10 * w075; 
+
+  // Breed Adjustment: Jersey cows have significantly higher basal metabolism
+  if (params.breed === 'jersey') {
+    neMaint *= 1.15; // +15% for Jerseys
+  }
+
+  // Environment adjustment for Maintenance
+  if (params.environment === 'heat_mild') {
+    neMaint *= 1.10; 
+  } else if (params.environment === 'heat_severe') {
+    neMaint *= 1.25; 
+  } else if (params.environment === 'cold') {
+    neMaint *= 1.15; 
+  }
+
+  let activityFactor = 1.0;
+  if (params.grazing === 'flat') {
+    activityFactor = 1.15; 
+  } else if (params.grazing === 'hilly') {
+    activityFactor = 1.30; 
+  }
+  
+  const neMaintTotal = neMaint * activityFactor;
+  // Converting NE to ME (Efficiency km approx 0.66 for maintenance)
+  const meMaint = neMaintTotal / 0.66;
+
+  // 2. Milk Production Energy
+  // Efficiency kl approx 0.66
+  const meMilk = totalNEmilk / 0.66;
+
+  me += meMaint + meMilk;
+
+  // 3. Pregnancy Energy (NASEM 2021)
+  if (params.pregnancyMonth > 6) {
+    // Simplified Gestation REgain based on month
+    const pregFactor = (params.pregnancyMonth - 6);
+    const gestRE = 0.5 * pregFactor; // Mcal/d RE
+    const meGestation = gestRE / 0.14; // Efficiency ky = 0.14 for gain
+    me += meGestation;
+  }
+
+  // 4. Growth Energy
+  let growthRateToUse = params.growthRate;
+  if (growthRateToUse === 0) {
+      if (params.lactationNumber === 1) growthRateToUse = 0.5; 
+      if (params.lactationNumber === 2) growthRateToUse = 0.2; 
+  }
+
+  if (growthRateToUse > 0) {
+     // Efficiency kg approx 0.40
+     const growthRE = 3.5 * growthRateToUse; // Mcal/d RE
+     me += growthRE / 0.40;
+  }
+
+  // 5. Body Condition Change
+  if (params.bcsChange > 0) {
+      me += 5.5 * params.bcsChange; // Mcal ME per unit change
+  } else if (params.bcsChange < 0) {
+      me += 4.5 * params.bcsChange; 
+  }
+
+  // --- Protein Requirements (NASEM 2021) ---
+  // Maintenance MP: ~1.0 g MP / kg BW
+  const mpMaint = 1.0 * params.weight;
+  
+  // Milk MP: NP / 0.69 (Efficiency kl = 0.69)
+  const milkNP = milkKg * (params.proteinPercentage * 10); // g NP
+  const mpMilk = milkNP / 0.69;
+
+  // Total MP Requirement
+  const totalMPReq = mpMaint + mpMilk;
+  
+  // Convert MP to CP (Efficiency approx 0.67)
+  cp = totalMPReq / 0.67;
+
+  // --- Amino Acid Requirements (NASEM 2021) ---
+  // Profiles (g/100g TP): Lys=8.82, Met=3.03
+  const milkLysNP = milkNP * 0.0882;
+  const milkMetNP = milkNP * 0.0303;
+  
+  // Maintenance AA (Simplified as % of mpMaint)
+  const maintLysNP = mpMaint * 0.07; // Approx
+  const maintMetNP = mpMaint * 0.02; 
+
+  // Efficiencies: Lys=0.72, Met=0.73
+  lysine = (milkLysNP + maintLysNP) / 0.72;
+  methionine = (milkMetNP + maintMetNP) / 0.73;
+
+  // --- Mineral Requirements (NASEM 2021) ---
+  // Calcium: Maint (0.9g/kg DMI) + Milk (1.22g/kg) + Growth
+  ca = (0.9 * estimatedDMI) + (milkKg * 1.22) + (growthRateToUse * 20);
+  // Phosphorus: Maint (1.0g/kg DMI) + Milk (0.9g/kg) + Growth
+  p = (1.0 * estimatedDMI) + (milkKg * 0.9) + (growthRateToUse * 10);
 
   // Guidelines (approximate):
-  // Min NDF: 30% of DM
-  // Min ADF: 21% of DM
-  // Max Starch: 25-28% of DM
-  // Sugar: ~5% (Guideline)
-  
   const ndfReq = estimatedDMI * 1000 * 0.30; // in grams
   const adfReq = estimatedDMI * 1000 * 0.21; // in grams
   const starchMax = estimatedDMI * 1000 * 0.26; // in grams (Max limit)
@@ -159,10 +161,10 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   let rupPercent = 0.35;
 
   if (params.lactationStage === 'early') {
-      rupPercent = 0.42; // Higher RUP needed for peak
+      rupPercent = 0.42; 
       rdpPercent = 0.58;
   } else if (params.lactationStage === 'dry') {
-      rupPercent = 0.30; // Lower RUP needed
+      rupPercent = 0.30; 
       rdpPercent = 0.70;
   }
 
@@ -175,22 +177,19 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
   const microbialCP = 10.1 * me;
   const mp = (microbialCP * 0.8) + (rup * 0.8);
   
-  // Targets: Lysine ~7.0% of MP, Methionine ~2.6% of MP
+  // Targets (NASEM 2021): Lysine ~7.0% of MP, Methionine ~2.6% of MP
   lysine = mp * 0.07;
   methionine = mp * 0.026;
 
   // 8. DCAD Requirements (mEq/kg DM)
   if (params.lactationStage === 'dry') {
-    // Close-up vs Far-off (approximate by pregnancy month or DIM if available)
-    // Here we use a general rule: dry cows target lower or negative DCAD
     dcad = params.pregnancyMonth >= 8 ? -100 : 100; 
   } else {
-    dcad = 300; // Lactating cows target positive DCAD
+    dcad = 300; 
   }
 
   // 9. peNDF Requirements (g)
-  // Target peNDF is ~20% of DMI
-  peNDF = predictedDmi * 1000 * 0.20;
+  peNDF = estimatedDMI * 1000 * 0.20;
 
   return {
     me: parseFloat(me.toFixed(2)),
@@ -199,10 +198,10 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     rup: Math.round(rup),
     lysine: Math.round(lysine),
     methionine: Math.round(methionine),
-    na: Math.round(predictedDmi * 2.5), // Approx 2.5g/kg DMI
-    k: Math.round(predictedDmi * 10), // Approx 10g/kg DMI
-    cl: Math.round(predictedDmi * 2.5), 
-    s: Math.round(predictedDmi * 2.0),
+    na: Math.round(estimatedDMI * 2.5), 
+    k: Math.round(estimatedDMI * 10), 
+    cl: Math.round(estimatedDMI * 2.5), 
+    s: Math.round(estimatedDMI * 2.0),
     dcad: dcad,
     peNDF: Math.round(peNDF),
     ca: Math.round(ca),
@@ -379,6 +378,27 @@ export const calculateSupplied = (
 
   const totalAsFed = concentrateAmountFed + forages.reduce((acc, curr) => acc + curr.amount, 0);
 
+  // --- Environmental Impact Calculations (NASEM 2021) ---
+  // 1. Manure Production (kg wet/d)
+  // Man_out = -28.3 + 3.6 * DMI + 12.4 * Potassium%
+  const potassiumPercent = totalDM > 0 ? (totalK / totalDM) / 10 : 0; // totalK is in g, need %
+  const manureProduction = totalDM > 0 ? (-28.3 + 3.6 * totalDM + 12.4 * (potassiumPercent * 10)) : 0;
+
+  // 2. Methane Production (g CH4/d)
+  // GasEOut = 0.294 * DMI - 0.347 * FA% + 0.0409 * DigNDF%
+  const faPercent = totalDM > 0 ? (totalDM * 0.03) : 0; // Simplified FA estimate if not fully tracked
+  const digNDFPercent = totalDM > 0 ? (totalNDF * 0.5 / totalDM) / 10 : 0; // Assuming 50% digestibility for rough estimate
+  const gasEOut = totalDM > 0 ? (0.294 * totalDM - 0.347 * 3 + 0.0409 * 45) : 0; // Using typical values for missing parts
+  const methaneProduction = gasEOut / 0.01326; // En_CH4 approx 13.26 Mcal/kg
+
+  // 3. Nitrogen Excretion (g N/d)
+  // N_excretion = N_intake - N_milk - N_scurf - N_growth
+  const nitrogenIntake = totalCP / 6.25;
+  const nitrogenExcretion = nitrogenIntake * 0.70; // Rough estimate: 70% of N is excreted
+
+  // 4. Phosphorus Excretion (g P/d)
+  const phosphorusExcretion = totalP * 0.65; // Rough estimate: 65% of P is excreted
+
   return {
     me: parseFloat(totalME.toFixed(2)),
     cp: Math.round(totalCP),
@@ -400,6 +420,10 @@ export const calculateSupplied = (
     adf: Math.round(totalADF),
     totalDM: parseFloat(totalDM.toFixed(2)),
     totalAsFed: parseFloat(totalAsFed.toFixed(2)),
+    manureProduction: Math.round(Math.max(0, manureProduction)),
+    methaneProduction: Math.round(Math.max(0, methaneProduction)),
+    nitrogenExcretion: Math.round(nitrogenExcretion),
+    phosphorusExcretion: Math.round(phosphorusExcretion),
     concentrateAnalysis: {
         me: parseFloat(mixME.toFixed(2)),
         cp: Math.round(mixCP),

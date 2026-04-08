@@ -37,6 +37,11 @@ export interface Nutrients {
   peNDF: number; // Physically Effective NDF (g)
   adf: number; // Acid Detergent Fiber (g)
   predictedDmi?: number; // Feed 2026 Predicted Dry Matter Intake (kg)
+  // Environmental Metrics (NASEM 2021)
+  manureProduction?: number; // kg wet manure/day
+  methaneProduction?: number; // g CH4/day
+  nitrogenExcretion?: number; // g N/day
+  phosphorusExcretion?: number; // g P/day
 }
 
 export interface FeedIngredient {

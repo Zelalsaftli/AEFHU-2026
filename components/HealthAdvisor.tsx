@@ -85,8 +85,9 @@ const HealthAdvisor: React.FC<HealthAdvisorProps> = ({ params, needs, supplied, 
                         onChange={(e) => setSelectedModel(e.target.value)}
                         className="bg-white border border-indigo-200 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 shadow-sm"
                     >
-                        <option value="gemini-3-flash-preview">Gemini 3 Flash (سريع ومجاني)</option>
-                        <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (أكثر دقة)</option>
+                        <option value="gemini-3-flash-preview">Gemini 3 Flash (الأحدث - سريع ومجاني)</option>
+                        <option value="gemini-2.0-flash-exp">Gemini 2 Flash (سريع جداً ومجاني)</option>
+                        <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (أكثر دقة - للأبحاث)</option>
                     </select>
                 </div>
 

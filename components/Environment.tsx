@@ -11,27 +11,22 @@ interface EnvironmentProps {
 
 const Environment: React.FC<EnvironmentProps> = ({ params, supplied, totalDM, totalAsFed }) => {
   // 1. Nitrogen Efficiency Calculation
-  // N Intake (g) = CP (g) / 6.25
   const nIntake = supplied.cp / 6.25;
-  
-  // N in Milk (g) = (Milk (kg) * 1000 * Milk Protein (%) / 100) / 6.38
   const nMilk = (params.milkProduction * 10 * params.proteinPercentage) / 6.38;
-  
   const nEfficiency = nIntake > 0 ? (nMilk / nIntake) * 100 : 0;
 
-  // 2. Methane Emission (CH4) Calculation
-  // Ellis et al. (2007) model for dairy cows:
-  // CH4 (MJ/day) = 3.23 + 0.81 * DMI (kg)
-  // Energy content of CH4 is 55.65 MJ/kg
-  const ch4EnergyMJ = 3.23 + 0.81 * totalDM;
-  const ch4Grams = (ch4EnergyMJ / 0.05565);
+  // 2. Methane Emission (CH4)
+  const ch4Grams = supplied.methaneProduction || 0;
   const ch4PerKgMilk = params.milkProduction > 0 ? ch4Grams / params.milkProduction : 0;
 
-  // 3. Water Intake Prediction (NASEM 2021)
-  // Formula: Water (L/d) = -14.1 + 1.25 * Milk (kg) + 2.15 * DMI (kg) + 0.44 * Diet_DM% + 0.42 * Tmax
+  // 3. Manure Production (NASEM 2021)
+  const manureKg = supplied.manureProduction || 0;
+
+  // 4. Phosphorus Excretion
+  const pExcretion = supplied.phosphorusExcretion || 0;
+
+  // 5. Water Intake Prediction (NASEM 2021)
   const dietDMPercent = totalAsFed > 0 ? (totalDM / totalAsFed) * 100 : 0;
-  
-  // Map environment to estimated Tmax
   const tempMap = {
     'neutral': 20,
     'heat_mild': 30,
@@ -39,7 +34,6 @@ const Environment: React.FC<EnvironmentProps> = ({ params, supplied, totalDM, to
     'cold': 10
   };
   const estimatedTemp = tempMap[params.environment] || 20;
-  
   const waterIntake = -14.1 + (1.25 * params.milkProduction) + (2.15 * totalDM) + (0.44 * dietDMPercent) + (0.42 * estimatedTemp);
   const waterPerKgDM = totalDM > 0 ? waterIntake / totalDM : 0;
 
@@ -60,48 +54,35 @@ const Environment: React.FC<EnvironmentProps> = ({ params, supplied, totalDM, to
   const mStatus = getMethaneStatus(ch4PerKgMilk);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
+    <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
       <div className="bg-gradient-to-r from-emerald-800 to-emerald-900 text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <Leaf className="w-32 h-32" />
         </div>
         <h2 className="text-3xl font-bold mb-2 flex items-center gap-3">
           <Wind className="text-emerald-400" />
-          المؤشرات البيئية والاستدامة
+          المؤشرات البيئية والاستدامة (NASEM 2021)
         </h2>
         <p className="text-emerald-100 opacity-90 max-w-2xl">
-          تقييم الأثر البيئي للعليقة الحالية من خلال حساب كفاءة استخدام النيتروجين، تقدير انبعاثات الميثان، وإدارة احتياجات المياه.
+          تقييم دقيق للأثر البيئي للعليقة الحالية بناءً على أحدث معادلات NASEM 2021 لتقدير الانبعاثات والمخلفات.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Nitrogen Efficiency Card */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Manure Production Card */}
         <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex flex-col">
           <div className="flex items-center gap-3 mb-4 border-b pb-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Droplets className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <Droplets className="w-5 h-5 text-orange-600" />
             </div>
-            <h3 className="font-bold text-slate-800 text-sm">كفاءة النيتروجين</h3>
+            <h3 className="font-bold text-slate-800 text-sm">إنتاج الروث (الرطب)</h3>
           </div>
-
           <div className="flex-grow flex flex-col justify-center items-center py-2">
-            <div className="text-4xl font-black text-blue-600 mb-1 ltr">
-              {nEfficiency.toFixed(1)}%
+            <div className="text-4xl font-black text-orange-600 mb-1 ltr">
+              {manureKg.toFixed(1)} <span className="text-sm">كغ/يوم</span>
             </div>
-            <div className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 ${nStatus.color}`}>
-              <nStatus.icon className="w-3 h-3" />
-              {nStatus.label}
-            </div>
-          </div>
-
-          <div className="mt-4 space-y-2 pt-3 border-t border-slate-100 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">N المتناول:</span>
-              <span className="font-bold text-slate-700">{nIntake.toFixed(0)} غ</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">N الحليب:</span>
-              <span className="font-bold text-slate-700">{nMilk.toFixed(0)} غ</span>
+            <div className="px-3 py-1 rounded-full text-[10px] font-bold bg-orange-50 text-orange-700">
+              {(manureKg / (params.milkProduction || 1)).toFixed(2)} كغ/كغ حليب
             </div>
           </div>
         </div>
@@ -114,7 +95,6 @@ const Environment: React.FC<EnvironmentProps> = ({ params, supplied, totalDM, to
             </div>
             <h3 className="font-bold text-slate-800 text-sm">انبعاثات الميثان</h3>
           </div>
-
           <div className="flex-grow flex flex-col justify-center items-center py-2">
             <div className="text-4xl font-black text-emerald-600 mb-1 ltr">
               {ch4Grams.toFixed(0)} <span className="text-sm">غ/يوم</span>
@@ -123,90 +103,91 @@ const Environment: React.FC<EnvironmentProps> = ({ params, supplied, totalDM, to
               {ch4PerKgMilk.toFixed(1)} غ/كغ حليب
             </div>
           </div>
+        </div>
 
-          <div className="mt-4 space-y-2 pt-3 border-t border-slate-100 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">الطاقة المفقودة:</span>
-              <span className="font-bold text-slate-700">{ch4EnergyMJ.toFixed(1)} MJ</span>
+        {/* Nitrogen Excretion Card */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex flex-col">
+          <div className="flex items-center gap-3 mb-4 border-b pb-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Droplets className="w-5 h-5 text-blue-600" />
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">الإنتاج السنوي:</span>
-              <span className="font-bold text-slate-700">{(ch4Grams * 365 / 1000).toFixed(0)} كغ</span>
+            <h3 className="font-bold text-slate-800 text-sm">إخراج النيتروجين</h3>
+          </div>
+          <div className="flex-grow flex flex-col justify-center items-center py-2">
+            <div className="text-4xl font-black text-blue-600 mb-1 ltr">
+              {supplied.nitrogenExcretion} <span className="text-sm">غ/يوم</span>
+            </div>
+            <div className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 ${nStatus.color}`}>
+              كفاءة N: {nEfficiency.toFixed(1)}%
             </div>
           </div>
         </div>
 
-        {/* Water Intake Card */}
+        {/* Phosphorus Excretion Card */}
         <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex flex-col">
           <div className="flex items-center gap-3 mb-4 border-b pb-3">
-            <div className="p-2 bg-cyan-100 rounded-lg">
-              <Droplets className="w-5 h-5 text-cyan-600" />
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Droplets className="w-5 h-5 text-purple-600" />
             </div>
-            <h3 className="font-bold text-slate-800 text-sm">احتياجات المياه</h3>
+            <h3 className="font-bold text-slate-800 text-sm">إخراج الفوسفور</h3>
           </div>
-
           <div className="flex-grow flex flex-col justify-center items-center py-2">
-            <div className="text-4xl font-black text-cyan-600 mb-1 ltr">
-              {waterIntake.toFixed(0)} <span className="text-sm">لتر/يوم</span>
+            <div className="text-4xl font-black text-purple-600 mb-1 ltr">
+              {pExcretion.toFixed(0)} <span className="text-sm">غ/يوم</span>
             </div>
-            <div className="px-3 py-1 rounded-full text-[10px] font-bold bg-cyan-50 text-cyan-700">
-              {waterPerKgDM.toFixed(1)} لتر/كغ مادة جافة
-            </div>
-          </div>
-
-          <div className="mt-4 space-y-2 pt-3 border-t border-slate-100 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">الحرارة المقدرة:</span>
-              <span className="font-bold text-slate-700">{estimatedTemp} °م</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">المادة الجافة للعليقة:</span>
-              <span className="font-bold text-slate-700">{dietDMPercent.toFixed(1)}%</span>
+            <div className="px-3 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700">
+              {((pExcretion / supplied.p) * 100).toFixed(0)}% من المتناول
             </div>
           </div>
         </div>
       </div>
 
-      {/* Water Management Details */}
-      <div className="bg-cyan-50 p-6 rounded-xl border border-cyan-100">
-        <h4 className="font-bold text-cyan-900 mb-4 flex items-center gap-2">
-          <Droplets className="w-5 h-5" />
-          توصيات إدارة المياه:
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <h5 className="font-bold text-cyan-800 text-sm">العوامل المؤثرة:</h5>
-            <ul className="text-xs text-cyan-700 space-y-2">
-              <li className="flex gap-2">
-                <div className="w-1 h-1 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>كل زيادة 1 كغ في إنتاج الحليب تتطلب حوالي 1.25 لتر ماء إضافي.</span>
-              </li>
-              <li className="flex gap-2">
-                <div className="w-1 h-1 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>درجة الحرارة العالية تزيد الاحتياجات بشكل كبير لتبريد جسم الحيوان.</span>
-              </li>
-              <li className="flex gap-2">
-                <div className="w-1 h-1 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>الأعلاف الجافة (التبن، القش) تزيد من حاجة الحيوان لشرب الماء مقارنة بالأعلاف الخضراء.</span>
-              </li>
-            </ul>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Water Intake Prediction */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+          <div className="flex items-center gap-3 mb-4 border-b pb-3">
+            <div className="p-2 bg-cyan-100 rounded-lg">
+              <Droplets className="w-5 h-5 text-cyan-600" />
+            </div>
+            <h3 className="font-bold text-slate-800">احتياجات مياه الشرب</h3>
           </div>
-          <div className="space-y-3">
-            <h5 className="font-bold text-cyan-800 text-sm">نصائح عملية:</h5>
-            <ul className="text-xs text-cyan-700 space-y-2">
-              <li className="flex gap-2">
-                <div className="w-1 h-1 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>توفير مياه نظيفة وعذبة أمام الأبقار على مدار 24 ساعة.</span>
-              </li>
-              <li className="flex gap-2">
-                <div className="w-1 h-1 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>تنظيف أحواض الشرب بانتظام لمنع نمو الطحالب والبكتيريا.</span>
-              </li>
-              <li className="flex gap-2">
-                <div className="w-1 h-1 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>توفير مساحة كافية على أحواض الشرب (حوالي 10 سم لكل بقرة).</span>
-              </li>
-            </ul>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-5xl font-black text-cyan-600 ltr">
+                {waterIntake.toFixed(0)} <span className="text-xl font-normal">لتر/يوم</span>
+              </div>
+              <p className="text-slate-500 text-sm mt-1">بناءً على الإنتاج والحرارة ({estimatedTemp}°م)</p>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-slate-700 ltr">{waterPerKgDM.toFixed(1)}</div>
+              <div className="text-[10px] text-slate-400">لتر/كغ مادة جافة</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Global Impact Summary */}
+        <div className="bg-slate-800 text-white p-6 rounded-xl shadow-md">
+          <h3 className="font-bold mb-4 flex items-center gap-2">
+            <Info className="w-5 h-5 text-emerald-400" />
+            ملخص الأثر السنوي (للبقرة الواحدة)
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-slate-700/50 p-3 rounded-lg">
+              <div className="text-slate-400 text-[10px] mb-1">إجمالي الميثان</div>
+              <div className="text-xl font-bold text-emerald-400 ltr">{(ch4Grams * 365 / 1000).toFixed(0)} كغ</div>
+            </div>
+            <div className="bg-slate-700/50 p-3 rounded-lg">
+              <div className="text-slate-400 text-[10px] mb-1">إجمالي الروث</div>
+              <div className="text-xl font-bold text-orange-400 ltr">{(manureKg * 365 / 1000).toFixed(1)} طن</div>
+            </div>
+            <div className="bg-slate-700/50 p-3 rounded-lg">
+              <div className="text-slate-400 text-[10px] mb-1">إجمالي النيتروجين</div>
+              <div className="text-xl font-bold text-blue-400 ltr">{(supplied.nitrogenExcretion * 365 / 1000).toFixed(0)} كغ</div>
+            </div>
+            <div className="bg-slate-700/50 p-3 rounded-lg">
+              <div className="text-slate-400 text-[10px] mb-1">إجمالي الفوسفور</div>
+              <div className="text-xl font-bold text-purple-400 ltr">{(pExcretion * 365 / 1000).toFixed(1)} كغ</div>
+            </div>
           </div>
         </div>
       </div>
