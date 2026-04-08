@@ -7,6 +7,7 @@ import HealthAdvisor from './components/HealthAdvisor';
 import Home from './components/Home';
 import Economics from './components/Economics';
 import Environment from './components/Environment';
+import Micronutrients from './components/Micronutrients';
 import { CowParameters, Nutrients, RationItem, Page, FeedIngredient } from './types';
 import { calculateRequirements, calculateSupplied } from './services/calculator';
 import { FEED_DATABASE } from './constants';
@@ -42,7 +43,9 @@ const App: React.FC = () => {
     na: 0, k: 0, cl: 0, s: 0, dcad: 0, peNDF: 0,
     ca: 0, p: 0, 
     starch: 0, sugar: 0, ndf: 0, adf: 0,
-    predictedDmi: 0
+    predictedDmi: 0,
+    co: 0, cu: 0, i: 0, fe: 0, mn: 0, se: 0, zn: 0,
+    vitA: 0, vitD: 0, vitE: 0
   });
 
   // State: Ingredients (Initialized from constant, but mutable)
@@ -227,6 +230,13 @@ const App: React.FC = () => {
             supplied={supplied}
             totalDM={totalDM}
             totalAsFed={totalAsFed}
+        />
+      )}
+
+      {activePage === Page.MICRONUTRIENTS && (
+        <Micronutrients 
+            params={cowParams}
+            needs={needs}
         />
       )}
     </Layout>

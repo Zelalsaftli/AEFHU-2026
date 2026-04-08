@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Activity, BarChart3, Printer, RotateCcw, Home as HomeIcon, Coins, Wind } from 'lucide-react';
+import { Leaf, Activity, BarChart3, Printer, RotateCcw, Home as HomeIcon, Coins, Wind, Beaker } from 'lucide-react';
 import { Page } from '../types';
 
 interface LayoutProps {
@@ -18,6 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ activePage, setPage, onReset, onSave, c
     { id: Page.COMPARE, label: 'التحليل والمقارنة', icon: BarChart3 },
     { id: Page.ECONOMICS, label: 'المؤشرات الاقتصادية (IOFC)', icon: Coins },
     { id: Page.ENVIRONMENT, label: 'المؤشرات البيئية', icon: Wind },
+    { id: Page.MICRONUTRIENTS, label: 'المعادن والفيتامينات', icon: Beaker },
     { id: Page.HEALTH, label: 'المستشار الفني (بيطري/زراعي)', icon: Activity },
   ];
 

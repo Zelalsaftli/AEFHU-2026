@@ -12,6 +12,7 @@ export const FEED_DATABASE: FeedIngredient[] = [
   { id: 'c_cotton_unpeeled', name: 'كسبة قطن (غير مقشورة)', type: 'concentrate', dm: 90.0, me: 2.30, cp: 28.0, rdp: 60.0, rup: 40.0, lysine: 4.0, methionine: 1.5, ca: 0.20, p: 0.60, na: 0.02, k: 1.20, cl: 0.05, s: 0.30, starch: 1.0, sugar: 3.0, ndf: 45.0, peFactor: 0.5, adf: 35.0, defaultPrice: 4500 },
   { id: 'c_beet', name: 'تفل شوندر جاف', type: 'concentrate', dm: 92.3, me: 2.25, cp: 9.9, rdp: 29.4, rup: 70.6, lysine: 5.8, methionine: 1.6, ca: 0.77, p: 0.11, na: 0.49, k: 0.50, cl: 0.20, s: 0.20, starch: 0.6, sugar: 5.7, ndf: 46.9, peFactor: 0.6, adf: 28.2, defaultPrice: 2800 },
   { id: 'c_almond_hulls', name: 'قشور اللوز', type: 'concentrate', dm: 88.2, me: 2.43, cp: 5.25, rdp: 37.0, rup: 63.0, lysine: 2.7, methionine: 0.9, ca: 0.27, p: 0.12, na: 0.02, k: 2.82, cl: 0.12, s: 0.04, starch: 0.9, sugar: 36.4, ndf: 33.0, peFactor: 0.6, adf: 27.6, defaultPrice: 2000 },
+  { id: 'c_molasses', name: 'مولاس (دبس السكر)', type: 'concentrate', dm: 65.4, me: 3.07, cp: 9.3, rdp: 100, rup: 0, lysine: 0.2, methionine: 0.1, ca: 1.51, p: 0.26, na: 0.28, k: 4.49, cl: 2.02, s: 0.64, starch: 0.8, sugar: 60.0, ndf: 0.6, peFactor: 0.1, adf: 0.2, defaultPrice: 1500 },
   
   // Minerals & Additives
   { id: 'c_salt', name: 'ملح طعام', type: 'concentrate', dm: 100, me: 0, cp: 0, rdp: 0, rup: 0, lysine: 0, methionine: 0, ca: 0, p: 0, na: 39.3, k: 0, cl: 60.7, s: 0, starch: 0, sugar: 0, ndf: 0, peFactor: 0, adf: 0, defaultPrice: 500 },

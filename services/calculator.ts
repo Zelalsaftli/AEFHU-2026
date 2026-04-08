@@ -210,7 +210,19 @@ export const calculateRequirements = (params: CowParameters): Nutrients => {
     adf: Math.round(adfReq),
     starch: Math.round(starchMax), 
     sugar: Math.round(sugarReq),
-    predictedDmi: parseFloat(estimatedDMI.toFixed(1))
+    predictedDmi: parseFloat(estimatedDMI.toFixed(1)),
+    // Trace Minerals (NASEM 2021)
+    co: parseFloat((estimatedDMI * 0.15).toFixed(2)), // 0.15 mg/kg DMI
+    cu: parseFloat((estimatedDMI * 15).toFixed(1)), // 15 mg/kg DMI
+    i: parseFloat((estimatedDMI * 0.8).toFixed(2)), // 0.8 mg/kg DMI
+    fe: parseFloat((estimatedDMI * 25).toFixed(1)), // 25 mg/kg DMI
+    mn: parseFloat((estimatedDMI * 40).toFixed(1)), // 40 mg/kg DMI
+    se: parseFloat((estimatedDMI * 0.3).toFixed(2)), // 0.3 mg/kg DMI
+    zn: parseFloat((estimatedDMI * 60).toFixed(1)), // 60 mg/kg DMI
+    // Vitamins (NASEM 2021)
+    vitA: Math.round(milkKg > 35 ? (110 * params.weight + 1000 * (milkKg - 35)) / 1000 : (110 * params.weight) / 1000), // kIU
+    vitD: Math.round((milkKg > 0 ? 40 * params.weight : 32 * params.weight) / 1000), // kIU
+    vitE: Math.round(params.lactationStage === 'dry' ? 1000 : 500) // IU (Simplified based on stage)
   };
 };
 

@@ -42,6 +42,18 @@ export interface Nutrients {
   methaneProduction?: number; // g CH4/day
   nitrogenExcretion?: number; // g N/day
   phosphorusExcretion?: number; // g P/day
+  // Trace Minerals (NASEM 2021)
+  co?: number; // Cobalt (mg)
+  cu?: number; // Copper (mg)
+  i?: number; // Iodine (mg)
+  fe?: number; // Iron (mg)
+  mn?: number; // Manganese (mg)
+  se?: number; // Selenium (mg)
+  zn?: number; // Zinc (mg)
+  // Vitamins (NASEM 2021)
+  vitA?: number; // Vitamin A (kIU)
+  vitD?: number; // Vitamin D (kIU)
+  vitE?: number; // Vitamin E (IU)
 }
 
 export interface FeedIngredient {
@@ -91,5 +103,6 @@ export enum Page {
   COMPARE = 'COMPARE',
   HEALTH = 'HEALTH',
   ECONOMICS = 'ECONOMICS',
-  ENVIRONMENT = 'ENVIRONMENT'
+  ENVIRONMENT = 'ENVIRONMENT',
+  MICRONUTRIENTS = 'MICRONUTRIENTS'
 }
